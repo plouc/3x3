@@ -45764,6 +45764,7 @@ var _Treemap = __webpack_require__(10);
 
 exports.default = function (gui, treemap) {
     var folder = gui.addFolder('Treemap');
+    folder.closed = false;
 
     var options = _extends({}, _Treemap.DEFAULTS);
 
@@ -45811,7 +45812,7 @@ exports.default = function (gui, treemap) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.initStats = exports.initGui = exports.initGround = exports.initLights = exports.initCamera = exports.initRenderer = undefined;
+exports.initFog = exports.initStats = exports.initGui = exports.initGround = exports.initLights = exports.initCamera = exports.initRenderer = undefined;
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -45903,11 +45904,11 @@ var initLights = exports.initLights = function initLights(scene) {
         _ref3$shadowMapSize = _ref3.shadowMapSize,
         shadowMapSize = _ref3$shadowMapSize === undefined ? 1024 : _ref3$shadowMapSize;
 
-    var hemisphere = new THREE.HemisphereLight(0xffffff, '#fff3e3', .3);
+    var hemisphere = new THREE.HemisphereLight('#fff3e3', '#d4d8f4', .3);
     hemisphere.position.set(0, 800, 0);
 
-    var directional = new THREE.DirectionalLight('#fff3e3', .7);
-    directional.position.set(0, 800, -200);
+    var directional = new THREE.DirectionalLight('#fff3e3', .8);
+    directional.position.set(-200, 600, 400);
     directional.castShadow = true;
     directional.shadow.camera.left = -1600;
     directional.shadow.camera.right = 1600;
@@ -45915,10 +45916,9 @@ var initLights = exports.initLights = function initLights(scene) {
     directional.shadow.camera.bottom = -1600;
     directional.shadow.camera.near = 1;
     directional.shadow.camera.far = 2000;
-    directional.shadow.bias = .0005;
+    directional.shadow.bias = .0001;
     directional.shadow.mapSize.width = shadowMapSize;
     directional.shadow.mapSize.height = shadowMapSize;
-    //directional.penumbra              = .3
 
     scene.add(hemisphere);
     scene.add(directional);
@@ -45983,21 +45983,38 @@ var initStats = exports.initStats = function initStats() {
     return stats;
 };
 
-exports.default = function (_ref6) {
-    var _ref6$width = _ref6.width,
-        width = _ref6$width === undefined ? 800 : _ref6$width,
-        _ref6$height = _ref6.height,
-        height = _ref6$height === undefined ? 800 : _ref6$height,
-        _ref6$renderer = _ref6.renderer,
-        rendererOptions = _ref6$renderer === undefined ? {} : _ref6$renderer,
-        _ref6$camera = _ref6.camera,
-        cameraOptions = _ref6$camera === undefined ? {} : _ref6$camera,
-        _ref6$lights = _ref6.lights,
-        lightsOptions = _ref6$lights === undefined ? {} : _ref6$lights,
-        _ref6$ground = _ref6.ground,
-        groundOptions = _ref6$ground === undefined ? {} : _ref6$ground,
-        _ref6$gui = _ref6.gui,
-        guiOptions = _ref6$gui === undefined ? {} : _ref6$gui;
+var initFog = exports.initFog = function initFog(scene) {
+    var _ref6 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        _ref6$color = _ref6.color,
+        color = _ref6$color === undefined ? '#FFFFFF' : _ref6$color,
+        _ref6$near = _ref6.near,
+        near = _ref6$near === undefined ? 1000 : _ref6$near,
+        _ref6$far = _ref6.far,
+        far = _ref6$far === undefined ? 2000 : _ref6$far;
+
+    var fog = new THREE.Fog(color, near, far);
+    scene.fog = fog;
+
+    return fog;
+};
+
+exports.default = function (_ref7) {
+    var _ref7$width = _ref7.width,
+        width = _ref7$width === undefined ? 800 : _ref7$width,
+        _ref7$height = _ref7.height,
+        height = _ref7$height === undefined ? 800 : _ref7$height,
+        _ref7$renderer = _ref7.renderer,
+        rendererOptions = _ref7$renderer === undefined ? {} : _ref7$renderer,
+        _ref7$camera = _ref7.camera,
+        cameraOptions = _ref7$camera === undefined ? {} : _ref7$camera,
+        _ref7$lights = _ref7.lights,
+        lightsOptions = _ref7$lights === undefined ? {} : _ref7$lights,
+        _ref7$fog = _ref7.fog,
+        fogOptions = _ref7$fog === undefined ? {} : _ref7$fog,
+        _ref7$ground = _ref7.ground,
+        groundOptions = _ref7$ground === undefined ? {} : _ref7$ground,
+        _ref7$gui = _ref7.gui,
+        guiOptions = _ref7$gui === undefined ? {} : _ref7$gui;
 
     var renderer = initRenderer(_extends({
         width: width,
@@ -46005,6 +46022,9 @@ exports.default = function (_ref6) {
     }, rendererOptions));
 
     var scene = new THREE.Scene();
+
+    var fog = void 0;
+    if (fogOptions !== false) fog = initFog(scene, fogOptions);
 
     var camera = initCamera(scene, _extends({
         renderer: renderer,
@@ -46040,6 +46060,7 @@ exports.default = function (_ref6) {
         camera: camera,
         scene: scene,
         lights: lights,
+        fog: fog,
         ground: ground,
         gui: gui,
         stats: stats,
@@ -89168,16 +89189,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var _setup = (0, _setup3.default)({
     width: 800,
     height: 800,
-    renderer: { clearColor: '#000000' },
-    ground: { color: '#675a45' }
+    renderer: { clearColor: '#271e13' },
+    ground: { color: '#362d1f' },
+    fog: { color: '#271e13' }
 }),
     scene = _setup.scene,
     gui = _setup.gui,
     render = _setup.render;
 
 var treemap = new _Treemap2.default({
-    width: 600,
-    height: 600,
+    width: 800,
+    height: 800,
     minDepth: 100,
     maxDepth: 300
 });
@@ -89222,7 +89244,7 @@ treemap.setData({
     }]
 });
 treemap.compute();
-treemap.position.y = 40;
+treemap.position.y = 1;
 treemap.update();
 scene.add(treemap);
 (0, _gui2.default)(gui, treemap);
