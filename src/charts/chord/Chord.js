@@ -320,6 +320,10 @@ export default class Chord extends THREE.Object3D {
         this.radiusTween.start()
     }
 
+    get depthRange() {
+        return this.depthScale.range()
+    }
+
     set depthRange(range) {
         this.depthScale.range(range)
     }
@@ -348,6 +352,10 @@ export default class Chord extends THREE.Object3D {
         this.depthTween.start()
     }
 
+    get anglePadding() {
+        return this.chord.padAngle()
+    }
+
     set anglePadding(padding) {
         this.chord.padAngle(padding)
     }
@@ -369,6 +377,10 @@ export default class Chord extends THREE.Object3D {
             })
 
         this.anglePaddingTween.start()
+    }
+
+    get wireframe() {
+        return this._wireframe
     }
 
     set wireframe(isEnabled) {

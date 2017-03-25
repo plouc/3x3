@@ -6,65 +6,119 @@ import Selection           from '../../lib/Selection'
 import { getLabelTexture } from '../../lib/texture'
 import { blend }           from '../../lib/utils'
 
-const tileModes = {
-    binary:    d3.treemapBinary,
-    sliceDice: d3.treemapSliceDice,
-    squarify:  d3.treemapSquarify,
-    slice:     d3.treemapSlice,
-    dice:      d3.treemapDice,
-}
-
-export const TILE_MODES = Object.keys(tileModes)
-
 export const DEFAULTS = {
-    width:    600,
-    height:   600,
-    minDepth: 200,
-    maxDepth: 400,
-    tile:     'squarify',
-    padding:  0,
+    width:       600,
+    height:      600,
+    padding:     3,
+    depthOffset: 12,
 }
 
 export default class CirclePack extends THREE.Object3D {
     constructor({
-        width    = DEFAULTS.width,
-        height   = DEFAULTS.height,
-        minDepth = DEFAULTS.minDepth,
-        maxDepth = DEFAULTS.maxDepth,
-        tile     = DEFAULTS.tile,
-        padding  = DEFAULTS.padding,
+        width       = DEFAULTS.width,
+        height      = DEFAULTS.height,
+        padding     = DEFAULTS.padding,
+        depthOffset = DEFAULTS.depthOffset
     }) {
         super()
 
         this.width  = width
         this.height = height
 
+        this.depthOffset = depthOffset
+
         this.pack = d3.pack()
-            .size([width - 2, height - 2])
+            .size([width, height])
             .padding(padding)
 
-        this.treemap = d3.treemap()
-            .size([width, height])
-            .round(true)
-            .paddingInner(0)
-
-        this.depthScale = d3.scaleLinear()
-            .range([minDepth, maxDepth])
-
-        this.color = d3.scaleOrdinal(chroma.schemePastel1)
         this.color = d3.scaleSequential(chroma.interpolateYlGnBu)
+        this.color = d3.scaleSequential(d3.interpolateMagma).domain([-4, 4])
 
-        this.setTiling(tile)
+        this.data    = {}
+        this.parents = []
+        this.leaves  = []
 
-        this.data   = {}
-        this.leaves = []
-        this.nodes  = []
-
-        this.buildPool()
+        this.initParentsSelection()
+        this.initLeavesSelection()
     }
 
-    buildPool() {
-        this.pool = new Selection({
+    initParentsSelection() {
+        this.parentsSelection = new Selection({
+            enter: node => {
+                const root = new THREE.Object3D()
+                root.position.x = node.x
+                root.position.z = node.z
+
+                const cylinder = new THREE.CylinderGeometry(1, 1, 1, 64, 1)
+
+                const mesh = new THREE.Mesh(
+                    cylinder,
+                    new THREE.MeshPhongMaterial({
+                        color:     node.color,
+                        shininess: 3,
+                        specular:  d3.rgb(node.color).brighter(.1).toString(),
+                    })
+                )
+                mesh.receiveShadow = true
+                mesh.castShadow    = true
+                mesh.position.y    = (node.depth + .5) * this.depthOffset
+                mesh.scale.x       = node.radius
+                mesh.scale.y       = this.depthOffset
+                mesh.scale.z       = node.radius
+
+                const lineGeom = new THREE.Geometry()
+                lineGeom.vertices.push(
+                    new THREE.Vector3(0, 0, 0),
+                    new THREE.Vector3(0, 300, 0)
+                )
+
+                const line = new THREE.Line(
+                    lineGeom,
+                    new THREE.LineBasicMaterial({
+                        color: d3.rgb(node.color).darker(1).toString(),
+                    })
+                )
+                line.castShadow = false
+
+                const label = new THREE.Mesh(
+                    new THREE.PlaneGeometry(100, 100, 4, 4),
+                    new THREE.MeshBasicMaterial({
+                        map:         getLabelTexture(node.value, node.color, { fontsize: 96 }),
+                        transparent: true,
+                        depthTest:   false,
+                    })
+                )
+                label.position.y = 370
+
+                root.add(mesh)
+                //root.add(line)
+                //root.add(label)
+
+                this.add(root)
+
+                return {
+                    ...node,
+                    root,
+                    cylinder,
+                    mesh,
+                    label,
+                    line,
+                }
+            },
+            update: (el, node) => {
+                el.root.position.x = node.x
+                el.root.position.z = node.z
+
+                el.mesh.position.y = (node.depth + .5) * this.depthOffset
+                el.mesh.scale.x    = node.radius
+                el.mesh.scale.y    = this.depthOffset
+                el.mesh.scale.z    = node.radius
+            },
+        })
+    }
+
+    initLeavesSelection() {
+        this.leavesSelection = new Selection({
             enter: node => {
                 const root = new THREE.Object3D()
                 root.position.x = node.x
@@ -76,12 +130,13 @@ export default class CirclePack extends THREE.Object3D {
                     sphere,
                     new THREE.MeshPhongMaterial({
                         color:     node.color,
-                        shininess: 10,
+                        shininess: 3,
+                        specular:  d3.rgb(node.color).brighter(.1).toString(),
                     })
                 )
                 mesh.receiveShadow = true
                 mesh.castShadow    = true
-                mesh.position.y    = node.radius
+                mesh.position.y    = node.depth * this.depthOffset + node.radius
                 mesh.scale.x       = node.radius * 2
                 mesh.scale.y       = node.radius * 2
                 mesh.scale.z       = node.radius * 2
@@ -111,8 +166,8 @@ export default class CirclePack extends THREE.Object3D {
                 label.position.y = 370
 
                 root.add(mesh)
-                root.add(line)
-                root.add(label)
+                //root.add(line)
+                //root.add(label)
 
                 this.add(root)
 
@@ -140,108 +195,40 @@ export default class CirclePack extends THREE.Object3D {
         this.pack(this.data)
         this.leaves = this.data.leaves()
 
-        console.log(this.leaves)
+        const descendants = this.data.descendants()
 
-        this.color.domain([0, this.leaves.length])
-        this.depthScale.domain([0, d3.max(this.leaves, d => d.value)])
-
-        this.nodes = this.mapLeaves(this.leaves)
+        this.parents = descendants.filter(d => (d.children !== undefined && d.children.length  >  0))
+        this.leaves  = descendants.filter(d => (d.children === undefined || d.children.length === 0))
     }
 
     update() {
-        this.pool.update(this.nodes)
+        this.parentsSelection.update(this.mapLeaves(this.parents))
+        this.leavesSelection.update(this.mapLeaves(this.leaves))
     }
 
     resize(width, height) {
         this.width  = width
         this.height = height
 
-        this.treemap.size([width, height])
-    }
-
-    setDepth(minDepth, maxDepth) {
-        this.depthScale.range([minDepth, maxDepth])
-    }
-
-    setTiling(tiling) {
-        this.treemap.tile(tileModes[tiling])
-    }
-
-    tilingTransition(tiling) {
-        this.setTiling(tiling)
-
-        if (this.tileTween1) {
-            this.tileTween1.stop()
-            this.tileTween2.stop()
-            this.tileTween3.stop()
-        }
-
-        const oldNodes = [...this.nodes]
-        this.compute()
-        const newNodes = this.nodes
-
-        const self = this
-
-        this.tileTween1 = new TWEEN.Tween({ completion: 0 })
-            .to({ completion: 1 }, 400)
-            .easing(TWEEN.Easing.Exponential.In)
-            .onUpdate(function () {
-                self.pool.update(oldNodes.map(node => ({
-                    ...node,
-                    width:  blend(node.width,  30, this.completion),
-                    height: blend(node.height, 30, this.completion),
-                    depth:  blend(node.depth,  30, this.completion),
-                })))
-            })
-
-        this.tileTween2 = new TWEEN.Tween({ completion: 0 })
-            .to({ completion: 1 }, 400)
-            .onUpdate(function () {
-                self.pool.update(oldNodes.map((node, i) => {
-                    const newNode = newNodes[i]
-                    return {
-                        ...node,
-                        x:      blend(node.x, newNode.x, this.completion),
-                        z:      blend(node.z, newNode.z, this.completion),
-                        width:  30,
-                        height: 30,
-                        depth:  30,
-                    }
-                }))
-            })
-
-        this.tileTween3 = new TWEEN.Tween({ completion: 0 })
-            .to({ completion: 1 }, 600)
-            .easing(TWEEN.Easing.Exponential.Out)
-            .onUpdate(function () {
-                self.pool.update(newNodes.map(node => ({
-                    ...node,
-                    width:  blend(30, node.width,  this.completion),
-                    height: blend(30, node.height, this.completion),
-                    depth:  blend(30, node.depth,  this.completion),
-                })))
-            })
-
-        this.tileTween1.chain(this.tileTween2)
-        this.tileTween2.chain(this.tileTween3)
-        this.tileTween1.start()
+        this.pack.size([width, height])
     }
 
     mapLeaves(leaves) {
         return leaves.map((leaf, i) => {
             return {
                 value:  leaf.value,
-                id:     leaf.data.name,
+                id:     leaf.data.id,
                 radius: leaf.r,
+                depth:  leaf.depth,
                 x:      leaf.x - this.width  * .5,
                 z:      leaf.y - this.height * .5,
-                color:  this.color(i),
+                color:  this.color(leaf.depth),
             }
         })
     }
 
     setData(data) {
-        this.data = d3.hierarchy({ ...data })
+        this.data = data//d3.hierarchy({ ...data })
             .sum(d => d.value)
             .sort((a, b) => b.value - a.value)
     }

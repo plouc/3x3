@@ -17,20 +17,22 @@ const tileModes = {
 export const TILE_MODES = Object.keys(tileModes)
 
 export const DEFAULTS = {
-    width:    600,
-    height:   600,
-    minDepth: 200,
-    maxDepth: 400,
-    tile:     'squarify',
+    width:        600,
+    height:       600,
+    minDepth:     200,
+    maxDepth:     400,
+    tile:         'squarify',
+    innerPadding: 0,
 }
 
 export default class Treemap extends THREE.Object3D {
     constructor({
-        width    = DEFAULTS.width,
-        height   = DEFAULTS.height,
-        minDepth = DEFAULTS.minDepth,
-        maxDepth = DEFAULTS.maxDepth,
-        tile     = DEFAULTS.tile,
+        width        = DEFAULTS.width,
+        height       = DEFAULTS.height,
+        minDepth     = DEFAULTS.minDepth,
+        maxDepth     = DEFAULTS.maxDepth,
+        tile         = DEFAULTS.tile,
+        innerPadding = DEFAULTS.innerPadding,
     }) {
         super()
 
@@ -40,7 +42,7 @@ export default class Treemap extends THREE.Object3D {
         this.treemap = d3.treemap()
             .size([width, height])
             .round(true)
-            .paddingInner(0)
+            .paddingInner(innerPadding)
 
         this.depthScale = d3.scaleLinear()
             .range([minDepth, maxDepth])
@@ -148,6 +150,14 @@ export default class Treemap extends THREE.Object3D {
         this.treemap.size([width, height])
     }
 
+    get minDepth() {
+        return this.depthScale.range()[0]
+    }
+
+    get maxDepth() {
+        return this.depthScale.range()[1]
+    }
+
     setDepth(minDepth, maxDepth) {
         this.depthScale.range([minDepth, maxDepth])
     }
@@ -214,6 +224,14 @@ export default class Treemap extends THREE.Object3D {
         this.tileTween1.chain(this.tileTween2)
         this.tileTween2.chain(this.tileTween3)
         this.tileTween1.start()
+    }
+
+    get innerPadding() {
+        return this.treemap.paddingInner()()
+    }
+
+    set innerPadding(padding) {
+        this.treemap.paddingInner(padding)
     }
 
     mapLeaves(leaves) {

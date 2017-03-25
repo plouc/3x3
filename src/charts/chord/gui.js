@@ -1,12 +1,21 @@
-import { DEFAULTS } from './Chord'
-
 const MIN_RADIUS = 6
 const MIN_DEPTH  = 6
 
 export default (gui, chord) => {
     const folder  = gui.addFolder('Chord')
+    folder.closed = false
 
-    const options = { ...DEFAULTS }
+    const depthRange = chord.depthRange
+    const options    = {
+        innerRadius:   chord.innerRadius,
+        outerRadius:   chord.outerRadius,
+        anglePadding:  chord.anglePadding,
+        minDepth:      depthRange[0],
+        maxDepth:      depthRange[1],
+        linkThickness: chord.linkThickness,
+        linkOffset:    chord.linkOffset,
+        wireframe:     chord.wireframe,
+    }
 
     const innerRadiusCtrl = folder.add(options, 'innerRadius', 100, 600).step(10)
     innerRadiusCtrl.onFinishChange(innerRadius => {

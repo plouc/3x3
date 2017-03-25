@@ -1,80 +1,33 @@
-import Treemap    from '../charts/circle-pack/CirclePack'
-import treemapGui from '../charts/circle-pack/gui'
+/**
+ * @see https://bl.ocks.org/mbostock/ca5b03a33affa4160321
+ */
+
+import * as d3    from 'd3'
 import setup      from './setup'
+import CirclePack from '../charts/circle-pack/CirclePack'
+import extendGui  from '../charts/circle-pack/gui'
+import flare      from './data/flare'
 
 const { scene, gui, render } = setup({
-    width:    800,
-    height:   800,
-    renderer: { clearColor: '#000000' },
-    ground:   { color: '#c7c993' },
+    width:    window.innerWidth,
+    height:   window.innerHeight,
+    renderer: { clearColor: '#2b0022' },
+    ground:   { color: '#400035' },
+    fog:      { color: '#2b0022' },
 })
 
-const treemap = new Treemap({
-    width:    600,
-    height:   600,
-    minDepth: 100,
-    maxDepth: 300,
+const stratify = d3.stratify()
+    .parentId(d => d.id.substring(0, d.id.lastIndexOf('.')))
+
+const circlePack = new CirclePack({
+    width:    1200,
+    height:   1200,
 })
-treemap.setData({
-    "name": "Eve",
-    "children": [
-        {
-            "name": "Cain",
-            value: 12,
-        },
-        {
-            "name": "Seth",
-            "children": [
-                {
-                    "name": "Enszos",
-                    value: 3,
-                },
-                {
-                    "name": "Noam",
-                    value: 8,
-                }
-            ]
-        },
-        {
-            "name": "Abel",
-            "children": [
-                {
-                    "name": "Enosqs",
-                    value: 17,
-                },
-                {
-                    "name": "Nsdqoam",
-                    value: 11,
-                }
-            ]
-        },
-        {
-            "name": "Awan",
-            "children": [
-                {
-                    "name": "Ensqddsqoch",
-                    value: 15,
-                },
-                {
-                    "name": "whatever",
-                    value: 5,
-                }
-            ]
-        },
-        {
-            "name": "Azura",
-            value: 27,
-        },
-        {
-            "name": "Blah",
-            value: 15,
-        }
-    ]
-})
-treemap.compute()
-treemap.position.y = 40
-treemap.update()
-scene.add(treemap)
-treemapGui(gui, treemap)
+circlePack.setData(stratify(flare))
+circlePack.compute()
+circlePack.position.y = 0
+circlePack.update()
+scene.add(circlePack)
+extendGui(gui, circlePack)
 
 render()

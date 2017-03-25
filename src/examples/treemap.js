@@ -3,15 +3,16 @@ import treemapGui from '../charts/treemap/gui'
 import setup      from './setup'
 
 const { scene, gui, render } = setup({
-    width:    800,
-    height:   800,
-    renderer: { clearColor: '#000000' },
-    ground:   { color: '#675a45' },
+    width:    window.innerWidth,
+    height:   window.innerHeight,
+    renderer: { clearColor: '#271e13' },
+    ground:   { color: '#362d1f' },
+    fog:      { color: '#271e13' },
 })
 
 const treemap = new Treemap({
-    width:    600,
-    height:   600,
+    width:    800,
+    height:   800,
     minDepth: 100,
     maxDepth: 300,
 })
@@ -72,7 +73,7 @@ treemap.setData({
     ]
 })
 treemap.compute()
-treemap.position.y = 40
+treemap.position.y = 1
 treemap.update()
 scene.add(treemap)
 treemapGui(gui, treemap)

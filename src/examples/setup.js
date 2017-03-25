@@ -54,11 +54,11 @@ export const initCamera = (scene, {
 export const initLights = (scene, {
     shadowMapSize = 1024,
 } = {}) => {
-    const hemisphere = new THREE.HemisphereLight(0xffffff, '#fff3e3', .3)
+    const hemisphere = new THREE.HemisphereLight('#fff3e3', '#d4d8f4', .3)
     hemisphere.position.set(0, 800, 0)
 
-    const directional = new THREE.DirectionalLight('#fff3e3', .7)
-    directional.position.set(0, 800, -200)
+    const directional = new THREE.DirectionalLight('#fff3e3', .8)
+    directional.position.set(-200, 600, 400)
     directional.castShadow            = true
     directional.shadow.camera.left    = -1600
     directional.shadow.camera.right   =  1600
@@ -66,10 +66,9 @@ export const initLights = (scene, {
     directional.shadow.camera.bottom  = -1600
     directional.shadow.camera.near    = 1
     directional.shadow.camera.far     = 2000
-    directional.shadow.bias           = .0005
+    directional.shadow.bias           = .0001
     directional.shadow.mapSize.width  = shadowMapSize
     directional.shadow.mapSize.height = shadowMapSize
-    //directional.penumbra              = .3
 
     scene.add(hemisphere)
     scene.add(directional)
@@ -133,12 +132,24 @@ export const initStats = () => {
     return stats
 }
 
+export const initFog = (scene, {
+    color = '#FFFFFF',
+    near  = 1000,
+    far   = 2000,
+} = {}) => {
+    const fog = new THREE.Fog(color, near, far)
+    scene.fog = fog
+
+    return fog
+}
+
 export default ({
     width                     = 800,
     height                    = 800,
     renderer: rendererOptions = {},
     camera:   cameraOptions   = {},
     lights:   lightsOptions   = {},
+    fog:      fogOptions      = {},
     ground:   groundOptions   = {},
     gui:      guiOptions      = {},
 }) => {
@@ -149,6 +160,9 @@ export default ({
     })
 
     const scene = new THREE.Scene()
+
+    let fog
+    if (fogOptions !== false) fog = initFog(scene, fogOptions)
 
     const camera = initCamera(scene, {
         renderer,
@@ -186,6 +200,7 @@ export default ({
         camera,
         scene,
         lights,
+        fog,
         ground,
         gui,
         stats,
