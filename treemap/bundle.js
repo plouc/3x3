@@ -43955,7 +43955,8 @@ var DEFAULTS = exports.DEFAULTS = {
     height: 600,
     minDepth: 200,
     maxDepth: 400,
-    tile: 'squarify'
+    tile: 'squarify',
+    innerPadding: 0
 };
 
 var Treemap = function (_THREE$Object3D) {
@@ -43971,7 +43972,9 @@ var Treemap = function (_THREE$Object3D) {
             _ref$maxDepth = _ref.maxDepth,
             maxDepth = _ref$maxDepth === undefined ? DEFAULTS.maxDepth : _ref$maxDepth,
             _ref$tile = _ref.tile,
-            tile = _ref$tile === undefined ? DEFAULTS.tile : _ref$tile;
+            tile = _ref$tile === undefined ? DEFAULTS.tile : _ref$tile,
+            _ref$innerPadding = _ref.innerPadding,
+            innerPadding = _ref$innerPadding === undefined ? DEFAULTS.innerPadding : _ref$innerPadding;
 
         _classCallCheck(this, Treemap);
 
@@ -43980,7 +43983,7 @@ var Treemap = function (_THREE$Object3D) {
         _this.width = width;
         _this.height = height;
 
-        _this.treemap = d3.treemap().size([width, height]).round(true).paddingInner(0);
+        _this.treemap = d3.treemap().size([width, height]).round(true).paddingInner(innerPadding);
 
         _this.depthScale = d3.scaleLinear().range([minDepth, maxDepth]);
 
@@ -44182,6 +44185,24 @@ var Treemap = function (_THREE$Object3D) {
             }).sort(function (a, b) {
                 return b.value - a.value;
             });
+        }
+    }, {
+        key: 'minDepth',
+        get: function get() {
+            return this.depthScale.range()[0];
+        }
+    }, {
+        key: 'maxDepth',
+        get: function get() {
+            return this.depthScale.range()[1];
+        }
+    }, {
+        key: 'innerPadding',
+        get: function get() {
+            return this.treemap.paddingInner()();
+        },
+        set: function set(padding) {
+            this.treemap.paddingInner(padding);
         }
     }]);
 
@@ -45766,7 +45787,13 @@ exports.default = function (gui, treemap) {
     var folder = gui.addFolder('Treemap');
     folder.closed = false;
 
-    var options = _extends({}, _Treemap.DEFAULTS);
+    var options = _extends({}, _Treemap.DEFAULTS, {
+        width: treemap.width,
+        height: treemap.height,
+        innerPadding: treemap.innerPadding,
+        minDepth: treemap.minDepth,
+        maxDepth: treemap.maxDepth
+    });
 
     var tilingCtrl = folder.add(options, 'tile', _Treemap.TILE_MODES);
     tilingCtrl.onFinishChange(function (tile) {
@@ -45780,6 +45807,13 @@ exports.default = function (gui, treemap) {
         treemap.update();
     });
 
+    var innerPaddingCtrl = folder.add(options, 'innerPadding', 0, 100);
+    innerPaddingCtrl.onFinishChange(function (padding) {
+        treemap.innerPadding = padding;
+        treemap.compute();
+        treemap.update();
+    });
+
     var heightCtrl = folder.add(options, 'height', 200, 1000).step(10);
     heightCtrl.onFinishChange(function (height) {
         treemap.resize(options.width, height);
@@ -45789,14 +45823,14 @@ exports.default = function (gui, treemap) {
 
     var minDepthCtrl = folder.add(options, 'minDepth', 0, 1000).step(10);
     minDepthCtrl.onFinishChange(function (minDepth) {
-        treemap.setDepth(minDepth, options.maxDepth);
+        treemap.setDepth(Math.min(minDepth, options.maxDepth), options.maxDepth);
         treemap.compute();
         treemap.update();
     });
 
     var maxDepthCtrl = folder.add(options, 'maxDepth', 0, 1000).step(10);
     maxDepthCtrl.onFinishChange(function (maxDepth) {
-        treemap.setDepth(options.minDepth, maxDepth);
+        treemap.setDepth(options.minDepth, Math.max(maxDepth, options.minDepth));
         treemap.compute();
         treemap.update();
     });
@@ -89187,8 +89221,8 @@ var _setup3 = _interopRequireDefault(_setup2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _setup = (0, _setup3.default)({
-    width: 800,
-    height: 800,
+    width: window.innerWidth,
+    height: window.innerHeight,
     renderer: { clearColor: '#271e13' },
     ground: { color: '#362d1f' },
     fog: { color: '#271e13' }

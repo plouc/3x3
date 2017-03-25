@@ -115,7 +115,7 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constant__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__constant__ = __webpack_require__(14);
 /* harmony export (immutable) */ __webpack_exports__["b"] = hue;
 /* harmony export (immutable) */ __webpack_exports__["c"] = gamma;
 /* harmony export (immutable) */ __webpack_exports__["a"] = nogamma;
@@ -43859,13 +43859,13 @@ function basis(t1, v0, v1, v2, v3) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_d3_color__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rgb__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__array__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__date__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__rgb__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__array__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__date__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__number__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__object__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__string__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__constant__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__object__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__string__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__constant__ = __webpack_require__(14);
 
 
 
@@ -43890,480 +43890,6 @@ function basis(t1, v0, v1, v2, v3) {
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.DEFAULTS = undefined;
-
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _lodash = __webpack_require__(20);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _d2 = __webpack_require__(84);
-
-var d3 = _interopRequireWildcard(_d2);
-
-var _three = __webpack_require__(5);
-
-var THREE = _interopRequireWildcard(_three);
-
-var _tween = __webpack_require__(22);
-
-var _tween2 = _interopRequireDefault(_tween);
-
-var _d3ScaleChromatic = __webpack_require__(48);
-
-var chroma = _interopRequireWildcard(_d3ScaleChromatic);
-
-var _Selection = __webpack_require__(27);
-
-var _Selection2 = _interopRequireDefault(_Selection);
-
-var _texture = __webpack_require__(28);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var DEFAULTS = exports.DEFAULTS = {
-    innerRadius: 520,
-    outerRadius: 540,
-    anglePadding: .05,
-    minDepth: 100,
-    maxDepth: 200,
-    linkThickness: 6,
-    linkOffset: 10,
-    arcResolution: 32,
-    linkResolution: 16,
-    wireframe: false
-};
-
-var HALF_PI = Math.PI * .5;
-
-var bindArcToBoxGeometry = function bindArcToBoxGeometry(_ref) {
-    var innerRadius = _ref.innerRadius,
-        outerRadius = _ref.outerRadius,
-        startAngle = _ref.startAngle,
-        endAngle = _ref.endAngle,
-        depth = _ref.depth,
-        box = _ref.box,
-        _ref$resolution = _ref.resolution,
-        resolution = _ref$resolution === undefined ? 32 : _ref$resolution;
-
-    var angleStep = (endAngle - startAngle) / resolution;
-
-    _lodash2.default.range(resolution + 1).forEach(function (index) {
-        var a = Math.PI * .5 - (startAngle + index * angleStep);
-        var x0 = Math.cos(a) * innerRadius;
-        var z0 = Math.sin(a) * innerRadius;
-        var x1 = Math.cos(a) * outerRadius;
-        var z1 = Math.sin(a) * outerRadius;
-
-        // top-right
-        var v0 = box.vertices[index];
-        v0.x = x1;
-        v0.y = depth;
-        v0.z = z1;
-
-        // bottom-right
-        var v1 = box.vertices[resolution + 1 + index];
-        v1.x = x1;
-        v1.y = 0;
-        v1.z = z1;
-
-        // top-left
-        var v2 = box.vertices[(resolution + 1) * 2 + resolution - index];
-        v2.x = x0;
-        v2.y = depth;
-        v2.z = z0;
-
-        // bottom-left
-        var v3 = box.vertices[(resolution + 1) * 3 + resolution - index];
-        v3.x = x0;
-        v3.y = 0;
-        v3.z = z0;
-    });
-
-    box.verticesNeedUpdate = true;
-};
-
-var ribbonGeometry = function ribbonGeometry(_ref2) {
-    var r = _ref2.radius,
-        depth = _ref2.depth,
-        sourceStartAngle = _ref2.sourceStartAngle,
-        sourceEndAngle = _ref2.sourceEndAngle,
-        targetStartAngle = _ref2.targetStartAngle,
-        targetEndAngle = _ref2.targetEndAngle,
-        _ref2$resolution = _ref2.resolution,
-        resolution = _ref2$resolution === undefined ? 16 : _ref2$resolution;
-
-    var ssa = sourceStartAngle - HALF_PI;
-    var sea = sourceEndAngle - HALF_PI;
-
-    var tsa = targetStartAngle - HALF_PI;
-    var tea = targetEndAngle - HALF_PI;
-
-    var sx0 = r * Math.cos(ssa);
-    var sy0 = r * Math.sin(ssa);
-
-    var tx0 = r * Math.cos(tsa);
-    var ty0 = r * Math.sin(tsa);
-
-    var shape = new THREE.Shape();
-
-    var same = ssa === tsa && sea === tea;
-
-    shape.moveTo(sx0, sy0);
-    shape.arc(-sx0, -sy0, r, ssa, sea);
-    if (!same) {
-        shape.quadraticCurveTo(0, 0, tx0, ty0);
-        shape.arc(-tx0, -ty0, r, tsa, tea);
-    }
-    shape.quadraticCurveTo(0, 0, sx0, sy0);
-
-    /*
-    let points
-    if (same) {
-        console.log('on self')
-        points = shape.extractPoints(resolution * 2)
-    } else {
-        console.log('on other')
-        points = shape.extractPoints(resolution)
-    }
-    console.log(points.shape.length)
-     const finalShape = new THREE.Shape()
-    points.forEach((p, i) => {
-        if (i === 0) return shape.moveTo(p.x, p.y)
-        shape.lineTo(p.x, p.y)
-    })
-    */
-
-    var geometry = new THREE.ExtrudeGeometry(shape, {
-        steps: 1,
-        amount: depth,
-        bevelEnabled: false
-    });
-
-    return geometry;
-};
-
-var Chord = function (_THREE$Object3D) {
-    _inherits(Chord, _THREE$Object3D);
-
-    function Chord(_ref3) {
-        var _ref3$innerRadius = _ref3.innerRadius,
-            innerRadius = _ref3$innerRadius === undefined ? DEFAULTS.innerRadius : _ref3$innerRadius,
-            _ref3$outerRadius = _ref3.outerRadius,
-            outerRadius = _ref3$outerRadius === undefined ? DEFAULTS.outerRadius : _ref3$outerRadius,
-            _ref3$anglePadding = _ref3.anglePadding,
-            anglePadding = _ref3$anglePadding === undefined ? DEFAULTS.anglePadding : _ref3$anglePadding,
-            _ref3$minDepth = _ref3.minDepth,
-            minDepth = _ref3$minDepth === undefined ? DEFAULTS.minDepth : _ref3$minDepth,
-            _ref3$maxDepth = _ref3.maxDepth,
-            maxDepth = _ref3$maxDepth === undefined ? DEFAULTS.maxDepth : _ref3$maxDepth,
-            _ref3$linkThickness = _ref3.linkThickness,
-            linkThickness = _ref3$linkThickness === undefined ? DEFAULTS.linkThickness : _ref3$linkThickness,
-            _ref3$linkOffset = _ref3.linkOffset,
-            linkOffset = _ref3$linkOffset === undefined ? DEFAULTS.linkOffset : _ref3$linkOffset,
-            _ref3$wireframe = _ref3.wireframe,
-            wireframe = _ref3$wireframe === undefined ? DEFAULTS.wireframe : _ref3$wireframe,
-            _ref3$arcResolution = _ref3.arcResolution,
-            arcResolution = _ref3$arcResolution === undefined ? DEFAULTS.arcResolution : _ref3$arcResolution;
-
-        _classCallCheck(this, Chord);
-
-        var _this = _possibleConstructorReturn(this, (Chord.__proto__ || Object.getPrototypeOf(Chord)).call(this));
-
-        _this.innerRadius = innerRadius;
-        _this.outerRadius = outerRadius;
-
-        _this.chord = d3.chord().padAngle(anglePadding).sortSubgroups(d3.descending);
-
-        _this.color = d3.scaleOrdinal(chroma.schemePastel1);
-        _this.color = d3.scaleOrdinal().domain(d3.range(4)).range(["#000000", "#FFDD89", "#957244", "#F26223"]);
-
-        _this.depthScale = d3.scaleLinear().range([minDepth, maxDepth]);
-
-        _this.linkThickness = linkThickness;
-        _this.linkOffset = linkOffset;
-
-        _this._wireframe = wireframe;
-
-        _this.arcResolution = arcResolution;
-
-        _this.data = [];
-        _this.groups = [];
-        _this.links = [];
-
-        // tweens, to be aware of involved ones
-        _this.radiusTween = null;
-        _this.depthTween = null;
-        _this.anglePaddingTween = null;
-
-        _this.buildArcsPool();
-        _this.buildLinksPool();
-        return _this;
-    }
-
-    _createClass(Chord, [{
-        key: 'buildArcsPool',
-        value: function buildArcsPool() {
-            var _this2 = this;
-
-            this.arcsPool = new _Selection2.default({
-                identify: function identify(a) {
-                    return a.index;
-                },
-                enter: function enter(arc) {
-                    var arcMaterial = new THREE.MeshPhongMaterial({
-                        color: _this2.color(arc.index),
-                        wireframe: _this2._wireframe,
-                        shading: THREE.FlatShading
-                    });
-
-                    var arcBox = new THREE.BoxGeometry(1, 1, 1, 1, 1, _this2.arcResolution);
-
-                    var arcMesh = new THREE.Mesh(arcBox, arcMaterial);
-                    arcMesh.castShadow = true;
-                    arcMesh.receiveShadow = true;
-
-                    var depth = _this2.depthScale(arc.value);
-
-                    bindArcToBoxGeometry({
-                        innerRadius: _this2.innerRadius,
-                        outerRadius: _this2.outerRadius,
-                        startAngle: arc.startAngle,
-                        endAngle: arc.endAngle,
-                        depth: depth,
-                        box: arcBox,
-                        resolution: _this2.arcResolution
-                    });
-
-                    _this2.add(arcMesh);
-
-                    return {
-                        index: arc.index,
-                        startAngle: arc.startAngle,
-                        endAngle: arc.endAngle,
-                        arcMaterial: arcMaterial,
-                        arcBox: arcBox,
-                        arcMesh: arcMesh
-                    };
-                },
-                update: function update(current, next) {
-                    var depth = _this2.depthScale(next.value);
-
-                    bindArcToBoxGeometry({
-                        innerRadius: _this2.innerRadius,
-                        outerRadius: _this2.outerRadius,
-                        startAngle: next.startAngle,
-                        endAngle: next.endAngle,
-                        depth: depth,
-                        box: current.arcBox,
-                        resolution: _this2.arcResolution
-                    });
-                }
-            });
-        }
-    }, {
-        key: 'buildLinksPool',
-        value: function buildLinksPool() {
-            var _this3 = this;
-
-            this.linksPool = new _Selection2.default({
-                identify: function identify(_ref4) {
-                    var source = _ref4.source,
-                        target = _ref4.target;
-                    return source.index + '.' + target.index;
-                },
-                enter: function enter(_ref5) {
-                    var source = _ref5.source,
-                        target = _ref5.target;
-
-                    var geometry = ribbonGeometry({
-                        radius: _this3.innerRadius,
-                        sourceStartAngle: source.startAngle,
-                        sourceEndAngle: source.endAngle,
-                        targetStartAngle: target.startAngle,
-                        targetEndAngle: target.endAngle,
-                        depth: _this3.linkThickness,
-                        resolution: 2
-                    });
-
-                    var material = new THREE.MeshPhongMaterial({
-                        color: _this3.color(target.index),
-                        wireframe: _this3._wireframe
-                    });
-
-                    var mesh = new THREE.Mesh(geometry, material);
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
-                    mesh.position.y = (source.index + target.index) * _this3.linkOffset;
-                    mesh.rotation.x = -HALF_PI;
-
-                    _this3.add(mesh);
-
-                    return {
-                        source: source,
-                        target: target,
-                        geometry: geometry,
-                        material: material,
-                        mesh: mesh
-                    };
-                },
-                update: function update(current, _ref6) {
-                    var source = _ref6.source,
-                        target = _ref6.target;
-
-                    var geometry = ribbonGeometry({
-                        radius: _this3.innerRadius,
-                        sourceStartAngle: source.startAngle,
-                        sourceEndAngle: source.endAngle,
-                        targetStartAngle: target.startAngle,
-                        targetEndAngle: target.endAngle,
-                        depth: _this3.linkThickness,
-                        resolution: 2
-                    });
-
-                    current.mesh.geometry = geometry;
-                }
-            });
-        }
-    }, {
-        key: 'compute',
-        value: function compute() {
-            var chord = this.chord(this.data.slice(1));
-
-            this.groups = chord.groups;
-            this.links = chord;
-
-            this.depthScale.domain([0, d3.max(this.groups, function (d) {
-                return d.value;
-            })]);
-        }
-    }, {
-        key: 'update',
-        value: function update() {
-            this.arcsPool.update(this.groups);
-            this.linksPool.update(this.links);
-        }
-    }, {
-        key: 'radiusTransition',
-        value: function radiusTransition(inner, outer) {
-            var _this4 = this;
-
-            if (this.radiusTween) this.radiusTween.stop();
-
-            var self = this;
-            this.radiusTween = new _tween2.default.Tween({
-                inner: this.innerRadius,
-                outer: this.outerRadius
-            }).to({ inner: inner, outer: outer }, 1200).easing(_tween2.default.Easing.Elastic.Out).onUpdate(function () {
-                self.innerRadius = this.inner;
-                self.outerRadius = this.outer;
-                self.compute();
-                self.update();
-            }).onStop(function () {
-                _this4.innerRadius = inner;
-                _this4.outerRadius = outer;
-            });
-
-            this.radiusTween.start();
-        }
-    }, {
-        key: 'depthRangeTransition',
-        value: function depthRangeTransition(minDepth, maxDepth) {
-            var _this5 = this;
-
-            if (this.depthTween) this.depthTween.stop();
-
-            var _depthScale$range = this.depthScale.range(),
-                _depthScale$range2 = _slicedToArray(_depthScale$range, 2),
-                min = _depthScale$range2[0],
-                max = _depthScale$range2[1];
-
-            var self = this;
-            this.depthTween = new _tween2.default.Tween({ min: min, max: max }).to({
-                min: minDepth,
-                max: maxDepth
-            }, 1200).easing(_tween2.default.Easing.Elastic.Out).onUpdate(function () {
-                self.depthScale.range([this.min, this.max]);
-                self.compute();
-                self.update();
-            }).onStop(function () {
-                _this5.depthScale.range([minDepth, maxDepth]);
-            });
-
-            this.depthTween.start();
-        }
-    }, {
-        key: 'anglePaddingTransition',
-        value: function anglePaddingTransition(padding) {
-            var _this6 = this;
-
-            if (this.anglePaddingTween) this.anglePaddingTween.stop();
-
-            var self = this;
-            this.anglePaddingTween = new _tween2.default.Tween({ padding: this.chord.padAngle() }).to({ padding: padding }, 1200).easing(_tween2.default.Easing.Elastic.Out).onUpdate(function () {
-                self.chord.padAngle(this.padding);
-                self.compute();
-                self.update();
-            }).onStop(function () {
-                _this6.chord.padAngle(padding);
-            });
-
-            this.anglePaddingTween.start();
-        }
-    }, {
-        key: 'setData',
-        value: function setData(data) {
-            this.data = data;
-        }
-    }, {
-        key: 'depthRange',
-        set: function set(range) {
-            this.depthScale.range(range);
-        }
-    }, {
-        key: 'anglePadding',
-        set: function set(padding) {
-            this.chord.padAngle(padding);
-        }
-    }, {
-        key: 'wireframe',
-        set: function set(isEnabled) {
-            if (isEnabled === this._wireframe) return;
-
-            this._wireframe = isEnabled;
-
-            this.children.forEach(function (child) {
-                child.material.wireframe = isEnabled;
-            });
-        }
-    }]);
-
-    return Chord;
-}(THREE.Object3D);
-
-exports.default = Chord;
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(Buffer) {/*
@@ -44445,7 +43971,7 @@ function toComment(sourceMap) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(32).Buffer))
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44456,7 +43982,7 @@ var rad2deg = 180 / Math.PI;
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44481,7 +44007,7 @@ var rad2deg = 180 / Math.PI;
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44502,7 +44028,7 @@ var rad2deg = 180 / Math.PI;
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44514,7 +44040,7 @@ var rad2deg = 180 / Math.PI;
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44527,7 +44053,7 @@ var rad2deg = 180 / Math.PI;
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44558,13 +44084,13 @@ var rad2deg = 180 / Math.PI;
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_d3_color__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__basis__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__basisClosed__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__basisClosed__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__color__ = __webpack_require__(3);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return rgbBasis; });
 /* unused harmony export rgbBasisClosed */
@@ -44626,7 +44152,7 @@ var rgbBasisClosed = rgbSpline(__WEBPACK_IMPORTED_MODULE_2__basisClosed__["a" /*
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44698,7 +44224,7 @@ function one(b) {
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -61787,10 +61313,10 @@ function one(b) {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23), __webpack_require__(24)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22), __webpack_require__(23)(module)))
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -62067,7 +61593,7 @@ function updateLink(linkElement, options, obj) {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -62957,7 +62483,7 @@ TWEEN.Interpolation = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(87)))
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports) {
 
 var g;
@@ -62984,7 +62510,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -63012,6 +62538,489 @@ module.exports = function(module) {
 
 
 /***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.DEFAULTS = undefined;
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _lodash = __webpack_require__(19);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _d2 = __webpack_require__(84);
+
+var d3 = _interopRequireWildcard(_d2);
+
+var _three = __webpack_require__(5);
+
+var THREE = _interopRequireWildcard(_three);
+
+var _tween = __webpack_require__(21);
+
+var _tween2 = _interopRequireDefault(_tween);
+
+var _d3ScaleChromatic = __webpack_require__(48);
+
+var chroma = _interopRequireWildcard(_d3ScaleChromatic);
+
+var _Selection = __webpack_require__(27);
+
+var _Selection2 = _interopRequireDefault(_Selection);
+
+var _texture = __webpack_require__(28);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DEFAULTS = exports.DEFAULTS = {
+    innerRadius: 520,
+    outerRadius: 540,
+    anglePadding: .05,
+    minDepth: 100,
+    maxDepth: 200,
+    linkThickness: 6,
+    linkOffset: 10,
+    arcResolution: 32,
+    linkResolution: 16,
+    wireframe: false
+};
+
+var HALF_PI = Math.PI * .5;
+
+var bindArcToBoxGeometry = function bindArcToBoxGeometry(_ref) {
+    var innerRadius = _ref.innerRadius,
+        outerRadius = _ref.outerRadius,
+        startAngle = _ref.startAngle,
+        endAngle = _ref.endAngle,
+        depth = _ref.depth,
+        box = _ref.box,
+        _ref$resolution = _ref.resolution,
+        resolution = _ref$resolution === undefined ? 32 : _ref$resolution;
+
+    var angleStep = (endAngle - startAngle) / resolution;
+
+    _lodash2.default.range(resolution + 1).forEach(function (index) {
+        var a = Math.PI * .5 - (startAngle + index * angleStep);
+        var x0 = Math.cos(a) * innerRadius;
+        var z0 = Math.sin(a) * innerRadius;
+        var x1 = Math.cos(a) * outerRadius;
+        var z1 = Math.sin(a) * outerRadius;
+
+        // top-right
+        var v0 = box.vertices[index];
+        v0.x = x1;
+        v0.y = depth;
+        v0.z = z1;
+
+        // bottom-right
+        var v1 = box.vertices[resolution + 1 + index];
+        v1.x = x1;
+        v1.y = 0;
+        v1.z = z1;
+
+        // top-left
+        var v2 = box.vertices[(resolution + 1) * 2 + resolution - index];
+        v2.x = x0;
+        v2.y = depth;
+        v2.z = z0;
+
+        // bottom-left
+        var v3 = box.vertices[(resolution + 1) * 3 + resolution - index];
+        v3.x = x0;
+        v3.y = 0;
+        v3.z = z0;
+    });
+
+    box.verticesNeedUpdate = true;
+};
+
+var ribbonGeometry = function ribbonGeometry(_ref2) {
+    var r = _ref2.radius,
+        depth = _ref2.depth,
+        sourceStartAngle = _ref2.sourceStartAngle,
+        sourceEndAngle = _ref2.sourceEndAngle,
+        targetStartAngle = _ref2.targetStartAngle,
+        targetEndAngle = _ref2.targetEndAngle,
+        _ref2$resolution = _ref2.resolution,
+        resolution = _ref2$resolution === undefined ? 16 : _ref2$resolution;
+
+    var ssa = sourceStartAngle - HALF_PI;
+    var sea = sourceEndAngle - HALF_PI;
+
+    var tsa = targetStartAngle - HALF_PI;
+    var tea = targetEndAngle - HALF_PI;
+
+    var sx0 = r * Math.cos(ssa);
+    var sy0 = r * Math.sin(ssa);
+
+    var tx0 = r * Math.cos(tsa);
+    var ty0 = r * Math.sin(tsa);
+
+    var shape = new THREE.Shape();
+
+    var same = ssa === tsa && sea === tea;
+
+    shape.moveTo(sx0, sy0);
+    shape.arc(-sx0, -sy0, r, ssa, sea);
+    if (!same) {
+        shape.quadraticCurveTo(0, 0, tx0, ty0);
+        shape.arc(-tx0, -ty0, r, tsa, tea);
+    }
+    shape.quadraticCurveTo(0, 0, sx0, sy0);
+
+    /*
+    let points
+    if (same) {
+        console.log('on self')
+        points = shape.extractPoints(resolution * 2)
+    } else {
+        console.log('on other')
+        points = shape.extractPoints(resolution)
+    }
+    console.log(points.shape.length)
+     const finalShape = new THREE.Shape()
+    points.forEach((p, i) => {
+        if (i === 0) return shape.moveTo(p.x, p.y)
+        shape.lineTo(p.x, p.y)
+    })
+    */
+
+    var geometry = new THREE.ExtrudeGeometry(shape, {
+        steps: 1,
+        amount: depth,
+        bevelEnabled: false
+    });
+
+    return geometry;
+};
+
+var Chord = function (_THREE$Object3D) {
+    _inherits(Chord, _THREE$Object3D);
+
+    function Chord(_ref3) {
+        var _ref3$innerRadius = _ref3.innerRadius,
+            innerRadius = _ref3$innerRadius === undefined ? DEFAULTS.innerRadius : _ref3$innerRadius,
+            _ref3$outerRadius = _ref3.outerRadius,
+            outerRadius = _ref3$outerRadius === undefined ? DEFAULTS.outerRadius : _ref3$outerRadius,
+            _ref3$anglePadding = _ref3.anglePadding,
+            anglePadding = _ref3$anglePadding === undefined ? DEFAULTS.anglePadding : _ref3$anglePadding,
+            _ref3$minDepth = _ref3.minDepth,
+            minDepth = _ref3$minDepth === undefined ? DEFAULTS.minDepth : _ref3$minDepth,
+            _ref3$maxDepth = _ref3.maxDepth,
+            maxDepth = _ref3$maxDepth === undefined ? DEFAULTS.maxDepth : _ref3$maxDepth,
+            _ref3$linkThickness = _ref3.linkThickness,
+            linkThickness = _ref3$linkThickness === undefined ? DEFAULTS.linkThickness : _ref3$linkThickness,
+            _ref3$linkOffset = _ref3.linkOffset,
+            linkOffset = _ref3$linkOffset === undefined ? DEFAULTS.linkOffset : _ref3$linkOffset,
+            _ref3$wireframe = _ref3.wireframe,
+            wireframe = _ref3$wireframe === undefined ? DEFAULTS.wireframe : _ref3$wireframe,
+            _ref3$arcResolution = _ref3.arcResolution,
+            arcResolution = _ref3$arcResolution === undefined ? DEFAULTS.arcResolution : _ref3$arcResolution;
+
+        _classCallCheck(this, Chord);
+
+        var _this = _possibleConstructorReturn(this, (Chord.__proto__ || Object.getPrototypeOf(Chord)).call(this));
+
+        _this.innerRadius = innerRadius;
+        _this.outerRadius = outerRadius;
+
+        _this.chord = d3.chord().padAngle(anglePadding).sortSubgroups(d3.descending);
+
+        _this.color = d3.scaleOrdinal(chroma.schemePastel1);
+        _this.color = d3.scaleOrdinal().domain(d3.range(4)).range(["#000000", "#FFDD89", "#957244", "#F26223"]);
+
+        _this.depthScale = d3.scaleLinear().range([minDepth, maxDepth]);
+
+        _this.linkThickness = linkThickness;
+        _this.linkOffset = linkOffset;
+
+        _this._wireframe = wireframe;
+
+        _this.arcResolution = arcResolution;
+
+        _this.data = [];
+        _this.groups = [];
+        _this.links = [];
+
+        // tweens, to be aware of involved ones
+        _this.radiusTween = null;
+        _this.depthTween = null;
+        _this.anglePaddingTween = null;
+
+        _this.buildArcsPool();
+        _this.buildLinksPool();
+        return _this;
+    }
+
+    _createClass(Chord, [{
+        key: 'buildArcsPool',
+        value: function buildArcsPool() {
+            var _this2 = this;
+
+            this.arcsPool = new _Selection2.default({
+                identify: function identify(a) {
+                    return a.index;
+                },
+                enter: function enter(arc) {
+                    var arcMaterial = new THREE.MeshPhongMaterial({
+                        color: _this2.color(arc.index),
+                        wireframe: _this2._wireframe,
+                        shading: THREE.FlatShading
+                    });
+
+                    var arcBox = new THREE.BoxGeometry(1, 1, 1, 1, 1, _this2.arcResolution);
+
+                    var arcMesh = new THREE.Mesh(arcBox, arcMaterial);
+                    arcMesh.castShadow = true;
+                    arcMesh.receiveShadow = true;
+
+                    var depth = _this2.depthScale(arc.value);
+
+                    bindArcToBoxGeometry({
+                        innerRadius: _this2.innerRadius,
+                        outerRadius: _this2.outerRadius,
+                        startAngle: arc.startAngle,
+                        endAngle: arc.endAngle,
+                        depth: depth,
+                        box: arcBox,
+                        resolution: _this2.arcResolution
+                    });
+
+                    _this2.add(arcMesh);
+
+                    return {
+                        index: arc.index,
+                        startAngle: arc.startAngle,
+                        endAngle: arc.endAngle,
+                        arcMaterial: arcMaterial,
+                        arcBox: arcBox,
+                        arcMesh: arcMesh
+                    };
+                },
+                update: function update(current, next) {
+                    var depth = _this2.depthScale(next.value);
+
+                    bindArcToBoxGeometry({
+                        innerRadius: _this2.innerRadius,
+                        outerRadius: _this2.outerRadius,
+                        startAngle: next.startAngle,
+                        endAngle: next.endAngle,
+                        depth: depth,
+                        box: current.arcBox,
+                        resolution: _this2.arcResolution
+                    });
+                }
+            });
+        }
+    }, {
+        key: 'buildLinksPool',
+        value: function buildLinksPool() {
+            var _this3 = this;
+
+            this.linksPool = new _Selection2.default({
+                identify: function identify(_ref4) {
+                    var source = _ref4.source,
+                        target = _ref4.target;
+                    return source.index + '.' + target.index;
+                },
+                enter: function enter(_ref5) {
+                    var source = _ref5.source,
+                        target = _ref5.target;
+
+                    var geometry = ribbonGeometry({
+                        radius: _this3.innerRadius,
+                        sourceStartAngle: source.startAngle,
+                        sourceEndAngle: source.endAngle,
+                        targetStartAngle: target.startAngle,
+                        targetEndAngle: target.endAngle,
+                        depth: _this3.linkThickness,
+                        resolution: 2
+                    });
+
+                    var material = new THREE.MeshPhongMaterial({
+                        color: _this3.color(target.index),
+                        wireframe: _this3._wireframe
+                    });
+
+                    var mesh = new THREE.Mesh(geometry, material);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    mesh.position.y = (source.index + target.index) * _this3.linkOffset;
+                    mesh.rotation.x = -HALF_PI;
+
+                    _this3.add(mesh);
+
+                    return {
+                        source: source,
+                        target: target,
+                        geometry: geometry,
+                        material: material,
+                        mesh: mesh
+                    };
+                },
+                update: function update(current, _ref6) {
+                    var source = _ref6.source,
+                        target = _ref6.target;
+
+                    var geometry = ribbonGeometry({
+                        radius: _this3.innerRadius,
+                        sourceStartAngle: source.startAngle,
+                        sourceEndAngle: source.endAngle,
+                        targetStartAngle: target.startAngle,
+                        targetEndAngle: target.endAngle,
+                        depth: _this3.linkThickness,
+                        resolution: 2
+                    });
+
+                    current.mesh.geometry = geometry;
+                }
+            });
+        }
+    }, {
+        key: 'compute',
+        value: function compute() {
+            var chord = this.chord(this.data.slice(1));
+
+            this.groups = chord.groups;
+            this.links = chord;
+
+            this.depthScale.domain([0, d3.max(this.groups, function (d) {
+                return d.value;
+            })]);
+        }
+    }, {
+        key: 'update',
+        value: function update() {
+            this.arcsPool.update(this.groups);
+            this.linksPool.update(this.links);
+        }
+    }, {
+        key: 'radiusTransition',
+        value: function radiusTransition(inner, outer) {
+            var _this4 = this;
+
+            if (this.radiusTween) this.radiusTween.stop();
+
+            var self = this;
+            this.radiusTween = new _tween2.default.Tween({
+                inner: this.innerRadius,
+                outer: this.outerRadius
+            }).to({ inner: inner, outer: outer }, 1200).easing(_tween2.default.Easing.Elastic.Out).onUpdate(function () {
+                self.innerRadius = this.inner;
+                self.outerRadius = this.outer;
+                self.compute();
+                self.update();
+            }).onStop(function () {
+                _this4.innerRadius = inner;
+                _this4.outerRadius = outer;
+            });
+
+            this.radiusTween.start();
+        }
+    }, {
+        key: 'depthRangeTransition',
+        value: function depthRangeTransition(minDepth, maxDepth) {
+            var _this5 = this;
+
+            if (this.depthTween) this.depthTween.stop();
+
+            var _depthScale$range = this.depthScale.range(),
+                _depthScale$range2 = _slicedToArray(_depthScale$range, 2),
+                min = _depthScale$range2[0],
+                max = _depthScale$range2[1];
+
+            var self = this;
+            this.depthTween = new _tween2.default.Tween({ min: min, max: max }).to({
+                min: minDepth,
+                max: maxDepth
+            }, 1200).easing(_tween2.default.Easing.Elastic.Out).onUpdate(function () {
+                self.depthScale.range([this.min, this.max]);
+                self.compute();
+                self.update();
+            }).onStop(function () {
+                _this5.depthScale.range([minDepth, maxDepth]);
+            });
+
+            this.depthTween.start();
+        }
+    }, {
+        key: 'anglePaddingTransition',
+        value: function anglePaddingTransition(padding) {
+            var _this6 = this;
+
+            if (this.anglePaddingTween) this.anglePaddingTween.stop();
+
+            var self = this;
+            this.anglePaddingTween = new _tween2.default.Tween({ padding: this.chord.padAngle() }).to({ padding: padding }, 1200).easing(_tween2.default.Easing.Elastic.Out).onUpdate(function () {
+                self.chord.padAngle(this.padding);
+                self.compute();
+                self.update();
+            }).onStop(function () {
+                _this6.chord.padAngle(padding);
+            });
+
+            this.anglePaddingTween.start();
+        }
+    }, {
+        key: 'setData',
+        value: function setData(data) {
+            this.data = data;
+        }
+    }, {
+        key: 'depthRange',
+        get: function get() {
+            return this.depthScale.range();
+        },
+        set: function set(range) {
+            this.depthScale.range(range);
+        }
+    }, {
+        key: 'anglePadding',
+        get: function get() {
+            return this.chord.padAngle();
+        },
+        set: function set(padding) {
+            this.chord.padAngle(padding);
+        }
+    }, {
+        key: 'wireframe',
+        get: function get() {
+            return this._wireframe;
+        },
+        set: function set(isEnabled) {
+            if (isEnabled === this._wireframe) return;
+
+            this._wireframe = isEnabled;
+
+            this.children.forEach(function (child) {
+                child.material.wireframe = isEnabled;
+            });
+        }
+    }]);
+
+    return Chord;
+}(THREE.Object3D);
+
+exports.default = Chord;
+
+/***/ }),
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -63021,11 +63030,6 @@ module.exports = function(module) {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _Chord = __webpack_require__(10);
-
 var MIN_RADIUS = 6;
 var MIN_DEPTH = 6;
 
@@ -63033,7 +63037,17 @@ exports.default = function (gui, chord) {
     var folder = gui.addFolder('Chord');
     folder.closed = false;
 
-    var options = _extends({}, _Chord.DEFAULTS);
+    var depthRange = chord.depthRange;
+    var options = {
+        innerRadius: chord.innerRadius,
+        outerRadius: chord.outerRadius,
+        anglePadding: chord.anglePadding,
+        minDepth: depthRange[0],
+        maxDepth: depthRange[1],
+        linkThickness: chord.linkThickness,
+        linkOffset: chord.linkOffset,
+        wireframe: chord.wireframe
+    };
 
     var innerRadiusCtrl = folder.add(options, 'innerRadius', 100, 600).step(10);
     innerRadiusCtrl.onFinishChange(function (innerRadius) {
@@ -63114,7 +63128,7 @@ var _stats = __webpack_require__(88);
 
 var _stats2 = _interopRequireDefault(_stats);
 
-var _tween = __webpack_require__(22);
+var _tween = __webpack_require__(21);
 
 var _tween2 = _interopRequireDefault(_tween);
 
@@ -63361,7 +63375,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _lodash = __webpack_require__(20);
+var _lodash = __webpack_require__(19);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -68888,7 +68902,7 @@ var _typeof2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbo
 	);
 });
 ;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(24)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)(module)))
 
 /***/ }),
 /* 31 */
@@ -70806,13 +70820,13 @@ function isnan (val) {
   return val !== val // eslint-disable-line no-self-compare
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(22)))
 
 /***/ }),
 /* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(undefined);
+exports = module.exports = __webpack_require__(10)(undefined);
 // imports
 
 
@@ -70826,7 +70840,7 @@ exports.push([module.i, "body, canvas {\n  margin: 0;\n  padding: 0;\n}\nhtml,\n
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(11)(undefined);
+exports = module.exports = __webpack_require__(10)(undefined);
 // imports
 
 
@@ -70843,7 +70857,7 @@ exports.push([module.i, ".dg {\n  /** Clear list styles */\n  /* Auto-place cont
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__define__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__color__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__math__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__math__ = __webpack_require__(11);
 /* harmony export (immutable) */ __webpack_exports__["a"] = cubehelix;
 /* unused harmony export Cubehelix */
 
@@ -70916,7 +70930,7 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__define__["a" /* default */])(
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__define__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__color__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__math__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__math__ = __webpack_require__(11);
 /* harmony export (immutable) */ __webpack_exports__["b"] = lab;
 /* unused harmony export Lab */
 /* harmony export (immutable) */ __webpack_exports__["a"] = hcl;
@@ -71038,28 +71052,28 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__define__["a" /* default */])(
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__src_value__ = __webpack_require__(9);
 /* unused harmony reexport interpolate */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_array__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__src_array__ = __webpack_require__(12);
 /* unused harmony reexport interpolateArray */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__src_basis__ = __webpack_require__(8);
 /* unused harmony reexport interpolateBasis */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__src_basisClosed__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__src_basisClosed__ = __webpack_require__(13);
 /* unused harmony reexport interpolateBasisClosed */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_date__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_date__ = __webpack_require__(15);
 /* unused harmony reexport interpolateDate */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_number__ = __webpack_require__(4);
 /* unused harmony reexport interpolateNumber */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_object__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_object__ = __webpack_require__(16);
 /* unused harmony reexport interpolateObject */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_round__ = __webpack_require__(43);
 /* unused harmony reexport interpolateRound */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_string__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__src_string__ = __webpack_require__(18);
 /* unused harmony reexport interpolateString */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__src_transform_index__ = __webpack_require__(45);
 /* unused harmony reexport interpolateTransformCss */
 /* unused harmony reexport interpolateTransformSvg */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__src_zoom__ = __webpack_require__(47);
 /* unused harmony reexport interpolateZoom */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__src_rgb__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__src_rgb__ = __webpack_require__(17);
 /* unused harmony reexport interpolateRgb */
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_11__src_rgb__["a"]; });
 /* unused harmony reexport interpolateRgbBasisClosed */
@@ -89297,7 +89311,7 @@ module.exports = function (css) {
 var content = __webpack_require__(33);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(21)(content, {});
+var update = __webpack_require__(20)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89323,7 +89337,7 @@ if(false) {
 var content = __webpack_require__(34);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // add the styles to the DOM
-var update = __webpack_require__(21)(content, {});
+var update = __webpack_require__(20)(content, {});
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -89346,7 +89360,7 @@ if(false) {
 "use strict";
 
 
-var _Chord = __webpack_require__(10);
+var _Chord = __webpack_require__(24);
 
 var _Chord2 = _interopRequireDefault(_Chord);
 
@@ -89361,19 +89375,26 @@ var _setup3 = _interopRequireDefault(_setup2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var _setup = (0, _setup3.default)({
-    width: 800,
-    height: 800,
+    width: window.innerWidth,
+    height: window.innerHeight,
     renderer: { clearColor: '#271e13' },
     ground: { color: '#362d1f' },
     fog: { color: '#271e13' }
 }),
     scene = _setup.scene,
     gui = _setup.gui,
-    render = _setup.render;
+    render = _setup.render; /**
+                             * @see https://bl.ocks.org/mbostock/4062006
+                             */
 
-var chord = new _Chord2.default({});
+var chord = new _Chord2.default({
+    innerRadius: 440,
+    outerRadius: 450,
+    minDepth: 100,
+    maxDepth: 100
+});
 chord.position.y = 1;
-chord.setData([['groupA', 'groupB', 'groupC', 'groupD', 'groupC', 'groupD', 'groupE'], [11975, 5871, 8916, 2868, 2468, 2867, 8624], [1951, 10048, 2060, 6171, 3571, 9653, 3419], [8010, 16145, 8090, 8045, 7639, 2476, 9752], [1013, 990, 940, 6907, 8756, 2765, 9507], [4724, 6545, 5630, 3967, 941, 1000, 3856], [9756, 1149, 4534, 8045, 7652, 7845, 897], [985, 12569, 784, 12023, 3474, 2457, 11476]]);
+chord.setData([['A', 'B', 'C', 'D'], [11975, 5871, 8916, 2868], [1951, 10048, 2060, 6171], [8010, 16145, 8090, 8045], [1013, 990, 940, 6907]]);
 chord.compute();
 chord.update();
 scene.add(chord);

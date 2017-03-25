@@ -89182,15 +89182,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var _setup = (0, _setup3.default)({
-    width: 800,
-    height: 800,
+    width: window.innerWidth,
+    height: window.innerHeight,
     renderer: { clearColor: '#2b0022' },
     ground: { color: '#400035' },
     fog: { color: '#2b0022' }
 }),
     scene = _setup.scene,
     gui = _setup.gui,
-    render = _setup.render;
+    render = _setup.render; /**
+                             * @see https://bl.ocks.org/mbostock/ca5b03a33affa4160321
+                             */
 
 var stratify = d3.stratify().parentId(function (d) {
     return d.id.substring(0, d.id.lastIndexOf('.'));
