@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+const path    = require('path')
+const ghPages = require('gh-pages')
+
+ghPages.publish(path.join(__dirname, '../build'), {
+    branch: 'gh-pages',
+    logger: console.log,
+}, () => {
+
+})
