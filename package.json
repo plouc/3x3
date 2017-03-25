@@ -2,7 +2,7 @@
   "name": "3x3",
   "description": "d3js meets threejs",
   "version": "0.1.0",
-  "private": true,
+  "license": "mit",
   "dependencies": {
     "d3": "^4.7.3",
     "d3-scale-chromatic": "^1.1.1",
@@ -38,7 +38,7 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
-    "publish": "yarn run build && scripts/publish",
+    "deploy": "CHART=treemap yarn build && CHART=chord yarn build && CHART=circle-pack yarn build && scripts/deploy",
     "start": "webpack-dev-server --port 3003"
   }
 }

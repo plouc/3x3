@@ -2,10 +2,12 @@ const path       = require('path')
 const HtmlPlugin = require('html-webpack-plugin')
 const pkg        = require('./package.json')
 
+const chart = process.env.CHART
+
 module.exports = {
-    entry: './src/examples/circle-pack.js',
+    entry:  `./src/examples/${chart}.js`,
     output: {
-        path:      path.resolve(__dirname, `build/`),
+        path:      path.resolve(__dirname, `build/${chart}/`),
         filename: 'bundle.js',
     },
     node: {
@@ -16,14 +18,6 @@ module.exports = {
             {
                 test:   /\.json$/,
                 loader: 'json-loader',
-            },
-            {
-                test:    /.*/,
-                loader:  'transform-loader?brfs',
-                enforce: 'post',
-                include: [
-                    path.resolve(__dirname, 'node_modules/pixi.js'),
-                ],
             },
             {
                 test:    /\.js$/,
