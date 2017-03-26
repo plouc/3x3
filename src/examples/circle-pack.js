@@ -20,8 +20,7 @@ const stratify = d3.stratify()
     .parentId(d => d.id.substring(0, d.id.lastIndexOf('.')))
 
 const circlePack = new CirclePack({
-    width:    1200,
-    height:   1200,
+    size: 1200,
 })
 circlePack.setData(stratify(flare))
 circlePack.compute()

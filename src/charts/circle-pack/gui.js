@@ -1,31 +1,33 @@
 import { DEFAULTS } from './CirclePack'
 
-export default (gui, circelPack) => {
+export default (gui, circlePack) => {
     const folder  = gui.addFolder('CirclePack')
     folder.closed = false
 
     const options = {
         ...DEFAULTS,
-        wireframe: circelPack.wireframe,
+        size:      circlePack.size,
+        padding:   circlePack.padding,
+        wireframe: circlePack.wireframe,
     }
 
-    const widthCtrl = folder.add(options, 'width', 200, 1000).step(10)
-    widthCtrl.onFinishChange(width => {
-        circelPack.resize(width, options.height)
-        circelPack.compute()
-        circelPack.update()
+    const sizeCtrl = folder.add(options, 'size', 200, 1000).step(10)
+    sizeCtrl.onFinishChange(size => {
+        circlePack.size = size
+        circlePack.compute()
+        circlePack.update()
     })
 
-    const heightCtrl = folder.add(options, 'height', 200, 1000).step(10)
-    heightCtrl.onFinishChange(height => {
-        circelPack.resize(options.width, height)
-        circelPack.compute()
-        circelPack.update()
+    const paddingCtrl = folder.add(options, 'padding', 0, 60).step(1)
+    paddingCtrl.onFinishChange(padding => {
+        circlePack.padding = padding
+        circlePack.compute()
+        circlePack.update()
     })
 
     const wireframeCtrl = folder.add(options, 'wireframe')
     wireframeCtrl.onFinishChange(isEnabled => {
-        circelPack.wireframe = isEnabled
-        circelPack.update()
+        circlePack.wireframe = isEnabled
+        circlePack.update()
     })
 }

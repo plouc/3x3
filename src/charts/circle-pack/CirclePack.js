@@ -7,8 +7,7 @@ import { getLabelTexture } from '../../lib/texture'
 import { blend }           from '../../lib/utils'
 
 export const DEFAULTS = {
-    width:       600,
-    height:      600,
+    size:        600,
     padding:     3,
     depthOffset: 12,
     wireframe:   false,
@@ -16,21 +15,17 @@ export const DEFAULTS = {
 
 export default class CirclePack extends THREE.Object3D {
     constructor({
-        width       = DEFAULTS.width,
-        height      = DEFAULTS.height,
+        size        = DEFAULTS.size,
         padding     = DEFAULTS.padding,
         depthOffset = DEFAULTS.depthOffset,
         wireframe   = DEFAULTS.wireframe,
     }) {
         super()
 
-        this.width  = width
-        this.height = height
-
         this.depthOffset = depthOffset
 
         this.pack = d3.pack()
-            .size([width, height])
+            .size([size, size])
             .padding(padding)
 
         this.color = d3.scaleSequential(chroma.interpolateYlGnBu)
@@ -217,22 +212,31 @@ export default class CirclePack extends THREE.Object3D {
         this.leavesSelection.update(this.mapLeaves(this.leaves))
     }
 
-    resize(width, height) {
-        this.width  = width
-        this.height = height
+    get size() {
+        return this.pack.size()[0]
+    }
 
-        this.pack.size([width, height])
+    set size(size) {
+        this.pack.size([size, size])
+    }
+
+    get padding() {
+        return this.pack.padding()()
+    }
+
+    set padding(padding) {
+        this.pack.padding(padding)
     }
 
     mapLeaves(leaves) {
-        return leaves.map((leaf, i) => {
+        return leaves.map(leaf => {
             return {
                 value:  leaf.value,
                 id:     leaf.data.id,
                 radius: leaf.r,
                 depth:  leaf.depth,
-                x:      leaf.x - this.width  * .5,
-                z:      leaf.y - this.height * .5,
+                x:      leaf.x - this.size * .5,
+                z:      leaf.y - this.size * .5,
                 color:  this.color(leaf.depth),
             }
         })
