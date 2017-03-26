@@ -159,7 +159,7 @@ export default class Chord extends THREE.Object3D {
         this.linkThickness = linkThickness
         this.linkOffset    = linkOffset
 
-        this._wireframe = wireframe
+        this.wireframe = wireframe
 
         this.arcResolution = arcResolution
 
@@ -182,7 +182,7 @@ export default class Chord extends THREE.Object3D {
             enter:    arc => {
                 const arcMaterial = new THREE.MeshPhongMaterial({
                     color:     this.color(arc.index),
-                    wireframe: this._wireframe,
+                    wireframe: this.wireframe,
                     shading:   THREE.FlatShading,
                 })
 
@@ -227,6 +227,8 @@ export default class Chord extends THREE.Object3D {
                     box:         current.arcBox,
                     resolution:  this.arcResolution,
                 })
+
+                current.arcMesh.material.wireframe = this.wireframe
             },
         })
     }
@@ -247,7 +249,7 @@ export default class Chord extends THREE.Object3D {
 
                 const material = new THREE.MeshPhongMaterial({
                     color:     this.color(target.index),
-                    wireframe: this._wireframe,
+                    wireframe: this.wireframe,
                 })
 
                 const mesh = new THREE.Mesh(geometry, material)
@@ -278,6 +280,8 @@ export default class Chord extends THREE.Object3D {
                 })
 
                 current.mesh.geometry = geometry
+
+                current.mesh.material.wireframe = this.wireframe
             },
         })
     }
@@ -377,20 +381,6 @@ export default class Chord extends THREE.Object3D {
             })
 
         this.anglePaddingTween.start()
-    }
-
-    get wireframe() {
-        return this._wireframe
-    }
-
-    set wireframe(isEnabled) {
-        if (isEnabled === this._wireframe) return
-
-        this._wireframe = isEnabled
-
-        this.children.forEach(child => {
-            child.material.wireframe = isEnabled
-        })
     }
 
     setData(data) {

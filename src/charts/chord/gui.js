@@ -67,5 +67,6 @@ export default (gui, chord) => {
     const wireframeCtrl = folder.add(options, 'wireframe')
     wireframeCtrl.onFinishChange(isEnabled => {
         chord.wireframe = isEnabled
+        chord.update()
     })
 }

@@ -11,6 +11,7 @@ export const DEFAULTS = {
     height:      600,
     padding:     3,
     depthOffset: 12,
+    wireframe:   false,
 }
 
 export default class CirclePack extends THREE.Object3D {
@@ -18,7 +19,8 @@ export default class CirclePack extends THREE.Object3D {
         width       = DEFAULTS.width,
         height      = DEFAULTS.height,
         padding     = DEFAULTS.padding,
-        depthOffset = DEFAULTS.depthOffset
+        depthOffset = DEFAULTS.depthOffset,
+        wireframe   = DEFAULTS.wireframe,
     }) {
         super()
 
@@ -34,6 +36,8 @@ export default class CirclePack extends THREE.Object3D {
         this.color = d3.scaleSequential(chroma.interpolateYlGnBu)
         this.color = d3.scaleSequential(d3.interpolateMagma).domain([-4, 4])
 
+        this.wireframe = wireframe
+
         this.data    = {}
         this.parents = []
         this.leaves  = []
@@ -47,6 +51,7 @@ export default class CirclePack extends THREE.Object3D {
             enter: node => {
                 const root = new THREE.Object3D()
                 root.position.x = node.x
+                root.position.y = (node.depth + .5) * this.depthOffset
                 root.position.z = node.z
 
                 const cylinder = new THREE.CylinderGeometry(1, 1, 1, 64, 1)
@@ -57,11 +62,11 @@ export default class CirclePack extends THREE.Object3D {
                         color:     node.color,
                         shininess: 3,
                         specular:  d3.rgb(node.color).brighter(.1).toString(),
+                        wireframe: this.wireframe,
                     })
                 )
                 mesh.receiveShadow = true
                 mesh.castShadow    = true
-                mesh.position.y    = (node.depth + .5) * this.depthOffset
                 mesh.scale.x       = node.radius
                 mesh.scale.y       = this.depthOffset
                 mesh.scale.z       = node.radius
@@ -108,11 +113,13 @@ export default class CirclePack extends THREE.Object3D {
             update: (el, node) => {
                 el.root.position.x = node.x
                 el.root.position.z = node.z
+                el.root.position.y = (node.depth + .5) * this.depthOffset
 
-                el.mesh.position.y = (node.depth + .5) * this.depthOffset
                 el.mesh.scale.x    = node.radius
                 el.mesh.scale.y    = this.depthOffset
                 el.mesh.scale.z    = node.radius
+
+                el.mesh.material.wireframe = this.wireframe
             },
         })
     }
@@ -122,6 +129,7 @@ export default class CirclePack extends THREE.Object3D {
             enter: node => {
                 const root = new THREE.Object3D()
                 root.position.x = node.x
+                root.position.y = node.depth * this.depthOffset + node.radius
                 root.position.z = node.z
 
                 const sphere = new THREE.SphereGeometry(.5, 16, 16)
@@ -132,11 +140,11 @@ export default class CirclePack extends THREE.Object3D {
                         color:     node.color,
                         shininess: 3,
                         specular:  d3.rgb(node.color).brighter(.1).toString(),
+                        wireframe: this.wireframe,
                     })
                 )
                 mesh.receiveShadow = true
                 mesh.castShadow    = true
-                mesh.position.y    = node.depth * this.depthOffset + node.radius
                 mesh.scale.x       = node.radius * 2
                 mesh.scale.y       = node.radius * 2
                 mesh.scale.z       = node.radius * 2
@@ -180,13 +188,16 @@ export default class CirclePack extends THREE.Object3D {
                     line,
                 }
             },
-            update(el, node) {
+            update: (el, node) => {
                 el.root.position.x = node.x
+                el.root.position.y = node.depth * this.depthOffset + node.radius
                 el.root.position.z = node.z
-                el.mesh.position.y = node.radius
+
                 el.mesh.scale.x = node.radius * 2
                 el.mesh.scale.y = node.radius * 2
                 el.mesh.scale.z = node.radius * 2
+
+                el.mesh.material.wireframe = this.wireframe
             },
         })
     }

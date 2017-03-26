@@ -23,6 +23,7 @@ export const DEFAULTS = {
     maxDepth:     400,
     tile:         'squarify',
     innerPadding: 0,
+    wireframe:    false,
 }
 
 export default class Treemap extends THREE.Object3D {
@@ -33,6 +34,7 @@ export default class Treemap extends THREE.Object3D {
         maxDepth     = DEFAULTS.maxDepth,
         tile         = DEFAULTS.tile,
         innerPadding = DEFAULTS.innerPadding,
+        wireframe    = DEFAULTS.wireframe,
     }) {
         super()
 
@@ -49,6 +51,8 @@ export default class Treemap extends THREE.Object3D {
 
         this.color  = d3.scaleOrdinal(chroma.schemePastel1)
         this.setTiling(tile)
+
+        this.wireframe = wireframe
 
         this.data   = {}
         this.leaves = []
@@ -71,6 +75,7 @@ export default class Treemap extends THREE.Object3D {
                     new THREE.MeshPhongMaterial({
                         color:     node.color,
                         shininess: 10,
+                        wireframe: this.wireframe,
                     })
                 )
                 mesh.receiveShadow = true
@@ -119,13 +124,16 @@ export default class Treemap extends THREE.Object3D {
                     line,
                 }
             },
-            update(el, node) {
+            update: (el, node) => {
                 el.root.position.x = node.x
                 el.root.position.z = node.z
                 el.mesh.position.y = node.depth / 2
+
                 el.mesh.scale.x = node.width
                 el.mesh.scale.y = node.depth
                 el.mesh.scale.z = node.height
+
+                el.mesh.material.wireframe = this.wireframe
             },
         })
     }

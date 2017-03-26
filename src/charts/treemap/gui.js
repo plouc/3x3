@@ -11,6 +11,7 @@ export default (gui, treemap) => {
         innerPadding: treemap.innerPadding,
         minDepth:     treemap.minDepth,
         maxDepth:     treemap.maxDepth,
+        wireframe:    treemap.wireframe,
     }
 
     const tilingCtrl = folder.add(options, 'tile', TILE_MODES)
@@ -50,6 +51,12 @@ export default (gui, treemap) => {
     maxDepthCtrl.onFinishChange(maxDepth => {
         treemap.setDepth(options.minDepth, Math.max(maxDepth, options.minDepth))
         treemap.compute()
+        treemap.update()
+    })
+
+    const wireframeCtrl = folder.add(options, 'wireframe')
+    wireframeCtrl.onFinishChange(isEnabled => {
+        treemap.wireframe = isEnabled
         treemap.update()
     })
 }
