@@ -60508,7 +60508,8 @@ var DEFAULTS = exports.DEFAULTS = {
     width: 600,
     height: 600,
     padding: 3,
-    depthOffset: 12
+    depthOffset: 12,
+    wireframe: false
 };
 
 var CirclePack = function (_THREE$Object3D) {
@@ -60522,7 +60523,9 @@ var CirclePack = function (_THREE$Object3D) {
             _ref$padding = _ref.padding,
             padding = _ref$padding === undefined ? DEFAULTS.padding : _ref$padding,
             _ref$depthOffset = _ref.depthOffset,
-            depthOffset = _ref$depthOffset === undefined ? DEFAULTS.depthOffset : _ref$depthOffset;
+            depthOffset = _ref$depthOffset === undefined ? DEFAULTS.depthOffset : _ref$depthOffset,
+            _ref$wireframe = _ref.wireframe,
+            wireframe = _ref$wireframe === undefined ? DEFAULTS.wireframe : _ref$wireframe;
 
         _classCallCheck(this, CirclePack);
 
@@ -60537,6 +60540,8 @@ var CirclePack = function (_THREE$Object3D) {
 
         _this.color = d3.scaleSequential(chroma.interpolateYlGnBu);
         _this.color = d3.scaleSequential(d3.interpolateMagma).domain([-4, 4]);
+
+        _this.wireframe = wireframe;
 
         _this.data = {};
         _this.parents = [];
@@ -60556,6 +60561,7 @@ var CirclePack = function (_THREE$Object3D) {
                 enter: function enter(node) {
                     var root = new THREE.Object3D();
                     root.position.x = node.x;
+                    root.position.y = (node.depth + .5) * _this2.depthOffset;
                     root.position.z = node.z;
 
                     var cylinder = new THREE.CylinderGeometry(1, 1, 1, 64, 1);
@@ -60563,11 +60569,11 @@ var CirclePack = function (_THREE$Object3D) {
                     var mesh = new THREE.Mesh(cylinder, new THREE.MeshPhongMaterial({
                         color: node.color,
                         shininess: 3,
-                        specular: d3.rgb(node.color).brighter(.1).toString()
+                        specular: d3.rgb(node.color).brighter(.1).toString(),
+                        wireframe: _this2.wireframe
                     }));
                     mesh.receiveShadow = true;
                     mesh.castShadow = true;
-                    mesh.position.y = (node.depth + .5) * _this2.depthOffset;
                     mesh.scale.x = node.radius;
                     mesh.scale.y = _this2.depthOffset;
                     mesh.scale.z = node.radius;
@@ -60604,11 +60610,13 @@ var CirclePack = function (_THREE$Object3D) {
                 update: function update(el, node) {
                     el.root.position.x = node.x;
                     el.root.position.z = node.z;
+                    el.root.position.y = (node.depth + .5) * _this2.depthOffset;
 
-                    el.mesh.position.y = (node.depth + .5) * _this2.depthOffset;
                     el.mesh.scale.x = node.radius;
                     el.mesh.scale.y = _this2.depthOffset;
                     el.mesh.scale.z = node.radius;
+
+                    el.mesh.material.wireframe = _this2.wireframe;
                 }
             });
         }
@@ -60621,6 +60629,7 @@ var CirclePack = function (_THREE$Object3D) {
                 enter: function enter(node) {
                     var root = new THREE.Object3D();
                     root.position.x = node.x;
+                    root.position.y = node.depth * _this3.depthOffset + node.radius;
                     root.position.z = node.z;
 
                     var sphere = new THREE.SphereGeometry(.5, 16, 16);
@@ -60628,11 +60637,11 @@ var CirclePack = function (_THREE$Object3D) {
                     var mesh = new THREE.Mesh(sphere, new THREE.MeshPhongMaterial({
                         color: node.color,
                         shininess: 3,
-                        specular: d3.rgb(node.color).brighter(.1).toString()
+                        specular: d3.rgb(node.color).brighter(.1).toString(),
+                        wireframe: _this3.wireframe
                     }));
                     mesh.receiveShadow = true;
                     mesh.castShadow = true;
-                    mesh.position.y = node.depth * _this3.depthOffset + node.radius;
                     mesh.scale.x = node.radius * 2;
                     mesh.scale.y = node.radius * 2;
                     mesh.scale.z = node.radius * 2;
@@ -60668,11 +60677,14 @@ var CirclePack = function (_THREE$Object3D) {
                 },
                 update: function update(el, node) {
                     el.root.position.x = node.x;
+                    el.root.position.y = node.depth * _this3.depthOffset + node.radius;
                     el.root.position.z = node.z;
-                    el.mesh.position.y = node.radius;
+
                     el.mesh.scale.x = node.radius * 2;
                     el.mesh.scale.y = node.radius * 2;
                     el.mesh.scale.z = node.radius * 2;
+
+                    el.mesh.material.wireframe = _this3.wireframe;
                 }
             });
         }
@@ -62311,24 +62323,32 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _CirclePack = __webpack_require__(11);
 
-exports.default = function (gui, treemap) {
+exports.default = function (gui, circelPack) {
     var folder = gui.addFolder('CirclePack');
     folder.closed = false;
 
-    var options = _extends({}, _CirclePack.DEFAULTS);
+    var options = _extends({}, _CirclePack.DEFAULTS, {
+        wireframe: circelPack.wireframe
+    });
 
     var widthCtrl = folder.add(options, 'width', 200, 1000).step(10);
     widthCtrl.onFinishChange(function (width) {
-        treemap.resize(width, options.height);
-        treemap.compute();
-        treemap.update();
+        circelPack.resize(width, options.height);
+        circelPack.compute();
+        circelPack.update();
     });
 
     var heightCtrl = folder.add(options, 'height', 200, 1000).step(10);
     heightCtrl.onFinishChange(function (height) {
-        treemap.resize(options.width, height);
-        treemap.compute();
-        treemap.update();
+        circelPack.resize(options.width, height);
+        circelPack.compute();
+        circelPack.update();
+    });
+
+    var wireframeCtrl = folder.add(options, 'wireframe');
+    wireframeCtrl.onFinishChange(function (isEnabled) {
+        circelPack.wireframe = isEnabled;
+        circelPack.update();
     });
 };
 

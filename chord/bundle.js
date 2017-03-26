@@ -62751,7 +62751,7 @@ var Chord = function (_THREE$Object3D) {
         _this.linkThickness = linkThickness;
         _this.linkOffset = linkOffset;
 
-        _this._wireframe = wireframe;
+        _this.wireframe = wireframe;
 
         _this.arcResolution = arcResolution;
 
@@ -62781,7 +62781,7 @@ var Chord = function (_THREE$Object3D) {
                 enter: function enter(arc) {
                     var arcMaterial = new THREE.MeshPhongMaterial({
                         color: _this2.color(arc.index),
-                        wireframe: _this2._wireframe,
+                        wireframe: _this2.wireframe,
                         shading: THREE.FlatShading
                     });
 
@@ -62826,6 +62826,8 @@ var Chord = function (_THREE$Object3D) {
                         box: current.arcBox,
                         resolution: _this2.arcResolution
                     });
+
+                    current.arcMesh.material.wireframe = _this2.wireframe;
                 }
             });
         }
@@ -62856,7 +62858,7 @@ var Chord = function (_THREE$Object3D) {
 
                     var material = new THREE.MeshPhongMaterial({
                         color: _this3.color(target.index),
-                        wireframe: _this3._wireframe
+                        wireframe: _this3.wireframe
                     });
 
                     var mesh = new THREE.Mesh(geometry, material);
@@ -62890,6 +62892,8 @@ var Chord = function (_THREE$Object3D) {
                     });
 
                     current.mesh.geometry = geometry;
+
+                    current.mesh.material.wireframe = _this3.wireframe;
                 }
             });
         }
@@ -62999,20 +63003,6 @@ var Chord = function (_THREE$Object3D) {
         set: function set(padding) {
             this.chord.padAngle(padding);
         }
-    }, {
-        key: 'wireframe',
-        get: function get() {
-            return this._wireframe;
-        },
-        set: function set(isEnabled) {
-            if (isEnabled === this._wireframe) return;
-
-            this._wireframe = isEnabled;
-
-            this.children.forEach(function (child) {
-                child.material.wireframe = isEnabled;
-            });
-        }
     }]);
 
     return Chord;
@@ -63093,6 +63083,7 @@ exports.default = function (gui, chord) {
     var wireframeCtrl = folder.add(options, 'wireframe');
     wireframeCtrl.onFinishChange(function (isEnabled) {
         chord.wireframe = isEnabled;
+        chord.update();
     });
 };
 

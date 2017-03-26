@@ -43956,7 +43956,8 @@ var DEFAULTS = exports.DEFAULTS = {
     minDepth: 200,
     maxDepth: 400,
     tile: 'squarify',
-    innerPadding: 0
+    innerPadding: 0,
+    wireframe: false
 };
 
 var Treemap = function (_THREE$Object3D) {
@@ -43974,7 +43975,9 @@ var Treemap = function (_THREE$Object3D) {
             _ref$tile = _ref.tile,
             tile = _ref$tile === undefined ? DEFAULTS.tile : _ref$tile,
             _ref$innerPadding = _ref.innerPadding,
-            innerPadding = _ref$innerPadding === undefined ? DEFAULTS.innerPadding : _ref$innerPadding;
+            innerPadding = _ref$innerPadding === undefined ? DEFAULTS.innerPadding : _ref$innerPadding,
+            _ref$wireframe = _ref.wireframe,
+            wireframe = _ref$wireframe === undefined ? DEFAULTS.wireframe : _ref$wireframe;
 
         _classCallCheck(this, Treemap);
 
@@ -43989,6 +43992,8 @@ var Treemap = function (_THREE$Object3D) {
 
         _this.color = d3.scaleOrdinal(chroma.schemePastel1);
         _this.setTiling(tile);
+
+        _this.wireframe = wireframe;
 
         _this.data = {};
         _this.leaves = [];
@@ -44013,7 +44018,8 @@ var Treemap = function (_THREE$Object3D) {
 
                     var mesh = new THREE.Mesh(box, new THREE.MeshPhongMaterial({
                         color: node.color,
-                        shininess: 10
+                        shininess: 10,
+                        wireframe: _this2.wireframe
                     }));
                     mesh.receiveShadow = true;
                     mesh.castShadow = true;
@@ -44055,9 +44061,12 @@ var Treemap = function (_THREE$Object3D) {
                     el.root.position.x = node.x;
                     el.root.position.z = node.z;
                     el.mesh.position.y = node.depth / 2;
+
                     el.mesh.scale.x = node.width;
                     el.mesh.scale.y = node.depth;
                     el.mesh.scale.z = node.height;
+
+                    el.mesh.material.wireframe = _this2.wireframe;
                 }
             });
         }
@@ -45792,7 +45801,8 @@ exports.default = function (gui, treemap) {
         height: treemap.height,
         innerPadding: treemap.innerPadding,
         minDepth: treemap.minDepth,
-        maxDepth: treemap.maxDepth
+        maxDepth: treemap.maxDepth,
+        wireframe: treemap.wireframe
     });
 
     var tilingCtrl = folder.add(options, 'tile', _Treemap.TILE_MODES);
@@ -45832,6 +45842,12 @@ exports.default = function (gui, treemap) {
     maxDepthCtrl.onFinishChange(function (maxDepth) {
         treemap.setDepth(options.minDepth, Math.max(maxDepth, options.minDepth));
         treemap.compute();
+        treemap.update();
+    });
+
+    var wireframeCtrl = folder.add(options, 'wireframe');
+    wireframeCtrl.onFinishChange(function (isEnabled) {
+        treemap.wireframe = isEnabled;
         treemap.update();
     });
 };
