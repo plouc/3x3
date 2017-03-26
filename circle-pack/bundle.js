@@ -60505,8 +60505,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var DEFAULTS = exports.DEFAULTS = {
-    width: 600,
-    height: 600,
+    size: 600,
     padding: 3,
     depthOffset: 12,
     wireframe: false
@@ -60516,10 +60515,8 @@ var CirclePack = function (_THREE$Object3D) {
     _inherits(CirclePack, _THREE$Object3D);
 
     function CirclePack(_ref) {
-        var _ref$width = _ref.width,
-            width = _ref$width === undefined ? DEFAULTS.width : _ref$width,
-            _ref$height = _ref.height,
-            height = _ref$height === undefined ? DEFAULTS.height : _ref$height,
+        var _ref$size = _ref.size,
+            size = _ref$size === undefined ? DEFAULTS.size : _ref$size,
             _ref$padding = _ref.padding,
             padding = _ref$padding === undefined ? DEFAULTS.padding : _ref$padding,
             _ref$depthOffset = _ref.depthOffset,
@@ -60531,12 +60528,9 @@ var CirclePack = function (_THREE$Object3D) {
 
         var _this = _possibleConstructorReturn(this, (CirclePack.__proto__ || Object.getPrototypeOf(CirclePack)).call(this));
 
-        _this.width = width;
-        _this.height = height;
-
         _this.depthOffset = depthOffset;
 
-        _this.pack = d3.pack().size([width, height]).padding(padding);
+        _this.pack = d3.pack().size([size, size]).padding(padding);
 
         _this.color = d3.scaleSequential(chroma.interpolateYlGnBu);
         _this.color = d3.scaleSequential(d3.interpolateMagma).domain([-4, 4]);
@@ -60710,26 +60704,18 @@ var CirclePack = function (_THREE$Object3D) {
             this.leavesSelection.update(this.mapLeaves(this.leaves));
         }
     }, {
-        key: 'resize',
-        value: function resize(width, height) {
-            this.width = width;
-            this.height = height;
-
-            this.pack.size([width, height]);
-        }
-    }, {
         key: 'mapLeaves',
         value: function mapLeaves(leaves) {
             var _this4 = this;
 
-            return leaves.map(function (leaf, i) {
+            return leaves.map(function (leaf) {
                 return {
                     value: leaf.value,
                     id: leaf.data.id,
                     radius: leaf.r,
                     depth: leaf.depth,
-                    x: leaf.x - _this4.width * .5,
-                    z: leaf.y - _this4.height * .5,
+                    x: leaf.x - _this4.size * .5,
+                    z: leaf.y - _this4.size * .5,
                     color: _this4.color(leaf.depth)
                 };
             });
@@ -60743,6 +60729,22 @@ var CirclePack = function (_THREE$Object3D) {
             }).sort(function (a, b) {
                 return b.value - a.value;
             });
+        }
+    }, {
+        key: 'size',
+        get: function get() {
+            return this.pack.size()[0];
+        },
+        set: function set(size) {
+            this.pack.size([size, size]);
+        }
+    }, {
+        key: 'padding',
+        get: function get() {
+            return this.pack.padding()();
+        },
+        set: function set(padding) {
+            this.pack.padding(padding);
         }
     }]);
 
@@ -62323,32 +62325,34 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _CirclePack = __webpack_require__(11);
 
-exports.default = function (gui, circelPack) {
+exports.default = function (gui, circlePack) {
     var folder = gui.addFolder('CirclePack');
     folder.closed = false;
 
     var options = _extends({}, _CirclePack.DEFAULTS, {
-        wireframe: circelPack.wireframe
+        size: circlePack.size,
+        padding: circlePack.padding,
+        wireframe: circlePack.wireframe
     });
 
-    var widthCtrl = folder.add(options, 'width', 200, 1000).step(10);
-    widthCtrl.onFinishChange(function (width) {
-        circelPack.resize(width, options.height);
-        circelPack.compute();
-        circelPack.update();
+    var sizeCtrl = folder.add(options, 'size', 200, 1000).step(10);
+    sizeCtrl.onFinishChange(function (size) {
+        circlePack.size = size;
+        circlePack.compute();
+        circlePack.update();
     });
 
-    var heightCtrl = folder.add(options, 'height', 200, 1000).step(10);
-    heightCtrl.onFinishChange(function (height) {
-        circelPack.resize(options.width, height);
-        circelPack.compute();
-        circelPack.update();
+    var paddingCtrl = folder.add(options, 'padding', 0, 60).step(1);
+    paddingCtrl.onFinishChange(function (padding) {
+        circlePack.padding = padding;
+        circlePack.compute();
+        circlePack.update();
     });
 
     var wireframeCtrl = folder.add(options, 'wireframe');
     wireframeCtrl.onFinishChange(function (isEnabled) {
-        circelPack.wireframe = isEnabled;
-        circelPack.update();
+        circlePack.wireframe = isEnabled;
+        circlePack.update();
     });
 };
 
@@ -89219,8 +89223,7 @@ var stratify = d3.stratify().parentId(function (d) {
 });
 
 var circlePack = new _CirclePack2.default({
-    width: 1200,
-    height: 1200
+    size: 1200
 });
 circlePack.setData(stratify(_flare2.default));
 circlePack.compute();
