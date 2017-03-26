@@ -2,7 +2,24 @@
   "name": "3x3",
   "description": "d3js meets threejs",
   "version": "0.1.0",
-  "license": "mit",
+  "license": "MIT",
+  "author": {
+    "name": "Raphaël Benitte",
+    "email": "benitteraphael+github@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plouc/3x3.git"
+  },
+  "bugs": {
+    "url": "https://github.com/plouc/3x3/issues"
+  },
+  "homepage": "https://plouc.github.io/3x3",
+  "keywords": [
+    "three",
+    "d3",
+    "dataviz"
+  ],
   "dependencies": {
     "d3": "^4.7.3",
     "d3-scale-chromatic": "^1.1.1",
