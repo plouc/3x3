@@ -2,6 +2,7 @@
  * @see https://bl.ocks.org/mbostock/4062006
  */
 
+import * as d3  from 'd3'
 import Chord    from '../charts/chord/Chord'
 import chordGui from '../charts/chord/gui'
 import setup    from './setup'
@@ -10,15 +11,20 @@ const { scene, gui, render } = setup({
     width:    window.innerWidth,
     height:   window.innerHeight,
     renderer: { clearColor: '#271e13' },
-    ground:   { color: '#362d1f' },
+    ground:   { color: '#463b2b' },
     fog:      { color: '#271e13' },
 })
+
+const color = d3.scaleOrdinal()
+    .domain(d3.range(4))
+    .range(['#1C1C1C', '#FFDD89', '#957244', '#F26223'])
 
 const chord = new Chord({
     innerRadius: 440,
     outerRadius: 450,
     minDepth:    100,
     maxDepth:    100,
+    color,
 })
 chord.position.y = 1
 chord.setData([

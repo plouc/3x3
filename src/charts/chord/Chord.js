@@ -6,6 +6,8 @@ import * as chroma         from 'd3-scale-chromatic'
 import Selection           from '../../lib/Selection'
 import { getLabelTexture } from '../../lib/texture'
 
+const DEFAULT_COLOR = d3.scaleOrdinal(chroma.schemeAccent)
+
 export const DEFAULTS = {
     innerRadius:    520,
     outerRadius:    540,
@@ -17,6 +19,12 @@ export const DEFAULTS = {
     arcResolution:  32,
     linkResolution: 16,
     wireframe:      false,
+    color:          DEFAULT_COLOR,
+    tickSize:       20,
+    majorTickSize:  40,
+    labelFontSize:  52,
+    labelSize:      70,
+    labelOffset:    10,
 }
 
 const HALF_PI = Math.PI * .5
@@ -74,7 +82,7 @@ const ribbonGeometry = ({
     sourceEndAngle,
     targetStartAngle,
     targetEndAngle,
-    resolution = 16,
+    resolution = 12,
 }) => {
     const ssa   = sourceStartAngle - HALF_PI
     const sea   = sourceEndAngle   - HALF_PI
@@ -100,25 +108,20 @@ const ribbonGeometry = ({
     }
     shape.quadraticCurveTo(0, 0, sx0, sy0)
 
-    /*
     let points
     if (same) {
-        console.log('on self')
         points = shape.extractPoints(resolution * 2)
     } else {
-        console.log('on other')
         points = shape.extractPoints(resolution)
     }
-    console.log(points.shape.length)
 
     const finalShape = new THREE.Shape()
-    points.forEach((p, i) => {
-        if (i === 0) return shape.moveTo(p.x, p.y)
-        shape.lineTo(p.x, p.y)
+    points.shape.forEach((p, i) => {
+        if (i === 0) return finalShape.moveTo(p.x, p.y)
+        finalShape.lineTo(p.x, p.y)
     })
-    */
 
-    const geometry = new THREE.ExtrudeGeometry(shape, {
+    const geometry = new THREE.ExtrudeGeometry(finalShape, {
         steps:        1,
         amount:       depth,
         bevelEnabled: false,
@@ -126,6 +129,16 @@ const ribbonGeometry = ({
 
     return geometry
 }
+
+const groupTicks = (group, step) => {
+    const k = (group.endAngle - group.startAngle) / group.value
+
+    return d3.range(0, group.value, step).map(value => {
+        return { value, angle: value * k + group.startAngle}
+    })
+}
+
+const formatTick = d3.formatPrefix(',.0', 1e3)
 
 export default class Chord extends THREE.Object3D {
     constructor({
@@ -138,6 +151,12 @@ export default class Chord extends THREE.Object3D {
         linkOffset    = DEFAULTS.linkOffset,
         wireframe     = DEFAULTS.wireframe,
         arcResolution = DEFAULTS.arcResolution,
+        color         = DEFAULTS.color,
+        tickSize      = DEFAULTS.tickSize,
+        majorTickSize = DEFAULTS.majorTickSize,
+        labelFontSize = DEFAULTS.labelFontSize,
+        labelOffset   = DEFAULTS.labelOffset,
+        labelSize     = DEFAULTS.labelSize,
     }) {
         super()
 
@@ -148,36 +167,43 @@ export default class Chord extends THREE.Object3D {
             .padAngle(anglePadding)
             .sortSubgroups(d3.descending)
 
-        this.color = d3.scaleOrdinal(chroma.schemePastel1)
-        this.color = d3.scaleOrdinal()
-            .domain(d3.range(4))
-            .range(["#000000", "#FFDD89", "#957244", "#F26223"])
+        this.color = color
 
         this.depthScale = d3.scaleLinear()
             .range([minDepth, maxDepth])
 
-        this.linkThickness = linkThickness
-        this.linkOffset    = linkOffset
+        this.linksResolution = 26
+        this.linkThickness   = linkThickness
+        this.linkOffset      = linkOffset
 
-        this.wireframe = wireframe
+        this.wireframe       = wireframe
 
-        this.arcResolution = arcResolution
+        this.arcResolution   = arcResolution
+
+        this.tickSize        = tickSize
+        this.majorTickSize   = majorTickSize
+
+        this.labelFontSize   = labelFontSize
+        this.labelOffset     = labelOffset
+        this.labelSize       = labelSize
 
         this.data   = []
         this.groups = []
         this.links  = []
+        this.ticks  = []
 
         // tweens, to be aware of involved ones
         this.radiusTween       = null
         this.depthTween        = null
         this.anglePaddingTween = null
 
-        this.buildArcsPool()
-        this.buildLinksPool()
+        this.buildArcsSelection()
+        this.buildTicksSelection()
+        this.buildLinksSelection()
     }
 
-    buildArcsPool() {
-        this.arcsPool = new Selection({
+    buildArcsSelection() {
+        this.arcsSelection = new Selection({
             identify: a => a.index,
             enter:    arc => {
                 const arcMaterial = new THREE.MeshPhongMaterial({
@@ -233,8 +259,68 @@ export default class Chord extends THREE.Object3D {
         })
     }
 
-    buildLinksPool() {
-        this.linksPool = new Selection({
+    buildTicksSelection() {
+        this.ticksSelection = new Selection({
+            enter:    tick => {
+                const isMajor = tick.value % 5e3 === 0
+
+                const root = new THREE.Object3D()
+                root.position.y = this.depthScale.range()[0] * .5
+                root.rotation.y = tick.angle - HALF_PI
+
+                const lineGeom = new THREE.Geometry()
+                lineGeom.vertices.push(
+                    new THREE.Vector3(this.outerRadius, 0, 0),
+                    new THREE.Vector3(this.outerRadius + (isMajor ? this.majorTickSize : this.tickSize), 0, 0),
+                )
+                const line = new THREE.Line(
+                    lineGeom,
+                    new THREE.LineBasicMaterial({
+                        color: tick.color,
+                    })
+                )
+                line.castShadow = false
+                root.add(line)
+
+                if (isMajor) {
+                    const labelGeometry = new THREE.PlaneGeometry(this.labelSize, this.labelSize, 1, 1)
+
+                    const labelTexture = getLabelTexture(formatTick(tick.value), tick.color, {
+                        size:     256,
+                        fontsize: this.labelFontSize,
+                        align:    'left',
+                    })
+
+                    const label = new THREE.Mesh(
+                        labelGeometry,
+                        new THREE.MeshBasicMaterial({
+                            map:         labelTexture,
+                            transparent: true,
+                            depthTest:   true,
+                        })
+                    )
+                    label.castShadow = false
+                    label.position.x = this.outerRadius + this.majorTickSize + this.labelOffset + this.labelSize * .5
+                    label.rotation.x = -HALF_PI
+                    root.add(label)
+                }
+
+                this.add(root)
+
+                return {
+                    id: tick.id,
+                    root,
+                }
+            },
+            update: (current, next) => {
+                current.root.position.y = this.depthScale.range()[0] * .5
+                current.root.rotation.y = next.angle - HALF_PI
+            },
+        })
+    }
+
+    buildLinksSelection() {
+        this.linksSelection = new Selection({
             identify: ({ source, target }) => `${source.index}.${target.index}`,
             enter:    ({ source, target }) => {
                 const geometry = ribbonGeometry({
@@ -244,7 +330,7 @@ export default class Chord extends THREE.Object3D {
                     targetStartAngle: target.startAngle,
                     targetEndAngle:   target.endAngle,
                     depth:            this.linkThickness,
-                    resolution:       2,
+                    resolution:       this.linksResolution,
                 })
 
                 const material = new THREE.MeshPhongMaterial({
@@ -276,7 +362,7 @@ export default class Chord extends THREE.Object3D {
                     targetStartAngle: target.startAngle,
                     targetEndAngle:   target.endAngle,
                     depth:            this.linkThickness,
-                    resolution:       2,
+                    resolution:       this.linksResolution,
                 })
 
                 current.mesh.geometry = geometry
@@ -292,12 +378,22 @@ export default class Chord extends THREE.Object3D {
         this.groups = chord.groups
         this.links  = chord
 
+        this.ticks = chord.groups.reduce((ticks, group) => ([
+            ...ticks,
+            ...groupTicks(group, 1000).map((tick, i) => ({
+                ...tick,
+                id:    `${group.index}.${i}`,
+                color: this.color(group.index),
+            }))
+        ]), [])
+
         this.depthScale.domain([0, d3.max(this.groups, d => d.value)])
     }
 
     update() {
-        this.arcsPool.update(this.groups)
-        this.linksPool.update(this.links)
+        this.arcsSelection.update(this.groups)
+        this.linksSelection.update(this.links)
+        this.ticksSelection.update(this.ticks)
     }
 
     radiusTransition(inner, outer) {

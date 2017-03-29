@@ -38,6 +38,12 @@ export default (gui, chord) => {
         chord.anglePaddingTransition(padding)
     })
 
+    const wireframeCtrl = folder.add(options, 'wireframe')
+    wireframeCtrl.onFinishChange(isEnabled => {
+        chord.wireframe = isEnabled
+        chord.update()
+    })
+
     const arcs = folder.addFolder('Arcs')
 
     const minDepthCtrl = arcs.add(options, 'minDepth', MIN_DEPTH, 1000).step(10)
@@ -61,12 +67,6 @@ export default (gui, chord) => {
     const linkOffsetCtrl = links.add(options, 'linkOffset', 0, 100).step(1)
     linkOffsetCtrl.onFinishChange(offset => {
         chord.linkOffset = offset
-        chord.update()
-    })
-
-    const wireframeCtrl = folder.add(options, 'wireframe')
-    wireframeCtrl.onFinishChange(isEnabled => {
-        chord.wireframe = isEnabled
         chord.update()
     })
 }
