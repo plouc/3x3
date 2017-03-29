@@ -62787,7 +62787,9 @@ var getLabelTexture = exports.getLabelTexture = function getLabelTexture(text, c
         _ref$size = _ref.size,
         size = _ref$size === undefined ? 512 : _ref$size,
         _ref$fontsize = _ref.fontsize,
-        fontsize = _ref$fontsize === undefined ? 64 : _ref$fontsize;
+        fontsize = _ref$fontsize === undefined ? 64 : _ref$fontsize,
+        _ref$align = _ref.align,
+        align = _ref$align === undefined ? 'center' : _ref$align;
 
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
@@ -62800,9 +62802,21 @@ var getLabelTexture = exports.getLabelTexture = function getLabelTexture(text, c
         context.font = 'bold ' + maxFontsize + 'pt Arial';
     } while (context.measureText(text).width > canvas.width);
 
-    context.textAlign = 'center';
+    context.textAlign = align;
     context.fillStyle = color;
-    context.fillText(text, canvas.width / 2, canvas.height / 2 + fontsize / 2);
+
+    var x = void 0;
+    if (align === 'center') {
+        x = canvas.width / 2;
+    } else if (align === 'left') {
+        x = 0;
+    } else if (align === 'right') {
+        x = canvas.width;
+    } else {
+        throw new Error('invalid \'align\' option: \'' + align + '\'');
+    }
+
+    context.fillText(text, x, canvas.height / 2 + fontsize / 2);
 
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
